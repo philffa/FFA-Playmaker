@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFA Playmaker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0e0e0e; --sur:#1a1a1a; --sur2:#222; --bdr:#2e2e2e; --bdr2:#3a3a3a;
+  --txt:#ebebeb; --mut:#666; --acc:#e8ff3b; --acc2:#c8e000;
+  --red:#ff4545; --grn:#4ade80;
+}
+html,body { height:100%; background:var(--bg); color:var(--txt); font-family:'DM Sans',sans-serif; overflow:hidden; }
+
+/* ── 3-column layout ── */
+#app {
+  display: grid;
+  grid-template-columns: 220px 1fr 260px;
+  grid-template-rows: 48px 1fr;
+  height: 100vh;
+}
+header {
+  grid-column: 1/-1;
+  grid-row: 1;
+  background: var(--sur);
+  border-bottom: 1px solid var(--bdr);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow: hidden;
+}
+#left  { grid-column:1; grid-row:2; background:var(--sur); border-right:1px solid var(--bdr); display:flex; flex-direction:column; overflow:hidden; }
+#mid   { grid-column:2; grid-row:2; background:#ffffff; position:relative; overflow:hidden; }
+#right { grid-column:3; grid-row:2; background:var(--sur); border-left:1px solid var(--bdr); display:flex; flex-direction:column; overflow:hidden; }
+
+/* ── Header pieces ── */
+.logo { font-family:'Bebas Neue',cursive; font-size:18px; letter-spacing:2px; color:var(--acc); padding:0 14px; border-right:1px solid var(--bdr); height:100%; display:flex; align-items:center; flex-shrink:0; }
+.logo span { color:var(--txt); }
+.hg { display:flex; align-items:center; gap:6px; padding:0 10px; border-right:1px solid var(--bdr); height:100%; flex-shrink:0; }
+.hlbl { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--mut); }
+input.hname { background:transparent; border:none; border-bottom:1.5px solid var(--bdr2); color:var(--txt); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; padding:2px 5px; width:150px; outline:none; }
+input.hname:focus { border-bottom-color:var(--acc); }
+input.hname::placeholder { color:var(--mut); }
+input.hnum { background:var(--sur2); border:1px solid var(--bdr); border-radius:4px; color:var(--txt); font-family:'DM Sans',sans-serif; font-size:12px; padding:3px 6px; width:46px; outline:none; text-align:center; }
+.hsp { flex:1; }
+.hbtn {
+  font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
+  padding:5px 11px; border-radius:4px; cursor:pointer;
+  border:1px solid var(--bdr2); background:var(--sur2); color:var(--txt);
+  transition:background .15s; white-space:nowrap; flex-shrink:0;
+}
+.hbtn:hover { background:#2e2e2e; }
+.hbtn.pri { background:var(--acc); color:#000; border-color:var(--acc); font-weight:700; }
+.hbtn.pri:hover { background:var(--acc2); }
+
+/* ── Sync dot ── */
+#syncwrap { display:flex; align-items:center; gap:6px; padding:0 12px; font-size:11px; color:var(--mut); flex-shrink:0; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--mut); flex-shrink:0; }
+.dot.live { background:var(--grn); }
+.dot.busy { background:var(--acc); animation:pulse .7s infinite; }
+.dot.err  { background:var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── Left panel ── */
+.panel-head { padding:10px 12px 8px; border-bottom:1px solid var(--bdr); }
+.panel-title { font-family:'Bebas Neue',cursive; font-size:13px; letter-spacing:2px; color:var(--acc); }
+.panel-body { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:4px; }
+.sec { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--mut); padding:6px 2px 3px; }
+.plyr-tile {
+  display:flex; align-items:center; gap:8px; padding:7px 9px;
+  background:var(--sur2); border:1px solid var(--bdr); border-radius:5px;
+  cursor:pointer; user-select:none; transition:border-color .15s, background .15s;
+}
+.plyr-tile:hover { border-color:var(--bdr2); background:#272727; }
+.dot-lbl {
+  width:24px; height:24px; border-radius:50%; background:#e8ff3b; color:#000;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',cursive; font-size:10px; flex-shrink:0;
+}
+.plyr-name { font-size:12px; font-weight:600; }
+.plyr-hint { font-size:11px; color:var(--mut); }
+#player-count { font-size:11px; color:var(--mut); padding:2px 2px 4px; }
+
+/* ── Mode buttons ── */
+.mode-grid { display:grid; grid-template-columns:1fr 1fr; gap:3px; margin-top:4px; }
+.mbtn {
+  padding:6px 3px; background:var(--sur2); border:1px solid var(--bdr); border-radius:4px;
+  cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px;
+  transition:all .15s;
+}
+.mbtn:hover { border-color:var(--bdr2); background:#272727; }
+.mbtn.on { background:rgba(232,255,59,0.07); border-color:var(--acc); }
+.mbtn svg { width:30px; height:19px; }
+.mlbl { font-size:9px; font-weight:600; letter-spacing:.3px; text-transform:uppercase; color:var(--mut); }
+.mbtn.on .mlbl { color:var(--acc); }
+
+/* ── Canvas ── */
+#cv { display:block; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+
+/* ── Right panel ── */
+.rtabs { display:flex; border-bottom:1px solid var(--bdr); flex-shrink:0; }
+.rtab { flex:1; height:36px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; color:var(--mut); cursor:pointer; border-bottom:2px solid transparent; position:relative; }
+.rtab:hover { color:var(--txt); }
+.rtab.on { color:var(--acc); border-bottom-color:var(--acc); }
+.rbadge { position:absolute; top:4px; right:2px; background:var(--red); color:#fff; border-radius:8px; font-size:9px; font-weight:700; padding:1px 4px; display:none; }
+.rbadge.show { display:block; }
+.rpane { display:none; flex:1; overflow-y:auto; flex-direction:column; }
+.rpane.on { display:flex; }
+.plist { padding:7px; display:flex; flex-direction:column; gap:6px; }
+.pcard { background:var(--sur2); border:1px solid var(--bdr); border-radius:5px; cursor:pointer; overflow:hidden; }
+.pcard:hover { border-color:var(--bdr2); }
+.pcard.on { border-color:var(--acc); }
+.pcard-h { display:flex; align-items:center; justify-content:space-between; padding:6px 9px 2px; }
+.pcard-num { font-family:'Bebas Neue',cursive; font-size:13px; color:var(--acc); }
+.pcard-name { font-size:12px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:130px; }
+.pcard-del { background:none; border:none; color:var(--mut); cursor:pointer; font-size:12px; padding:0 0 0 4px; }
+.pcard-del:hover { color:var(--red); }
+.pcard-by { font-size:10px; color:#555; padding:0 9px 4px; }
+.pcard-thumb { width:100%; height:58px; object-fit:cover; display:block; border-top:1px solid var(--bdr); }
+.empty { text-align:center; padding:24px 12px; color:var(--mut); font-size:12px; line-height:1.7; }
+@keyframes fin { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+.pcard.flash { animation:fin .3s ease; }
+
+/* Teams / log / admin */
+.tpane { padding:8px; display:flex; flex-direction:column; gap:5px; }
+.tsec { font-size:10px; font-weight:600; text-transform:uppercase; color:var(--mut); letter-spacing:1px; padding:4px 0 2px; }
+.tcard { background:var(--sur2); border:1px solid var(--bdr); border-radius:5px; padding:9px 11px; }
+.tcard-name { font-size:12px; font-weight:600; margin-bottom:2px; }
+.tcard-meta { font-size:11px; color:var(--mut); margin-bottom:6px; }
+.pill { display:inline-block; font-size:10px; font-weight:600; padding:2px 7px; border-radius:3px; margin-bottom:6px; }
+.pill.ok  { background:rgba(74,222,128,.1); color:var(--grn); }
+.pill.pend { background:rgba(249,115,22,.1); color:#f97316; }
+.tbtn { font-size:11px; font-weight:600; padding:4px 10px; border-radius:4px; cursor:pointer; border:1px solid var(--bdr2); background:transparent; color:var(--txt); margin-right:4px; }
+.tbtn.join { border-color:rgba(74,222,128,.3); color:var(--grn); }
+.tbtn.leave { border-color:rgba(255,69,69,.25); color:var(--red); }
+.lentry { padding:8px 10px; background:var(--sur2); border:1px solid var(--bdr); border-radius:5px; margin-bottom:4px; }
+.ltag { display:inline-block; font-size:10px; font-weight:700; padding:1px 5px; border-radius:3px; margin-right:4px; }
+.ltag.s { background:rgba(74,222,128,.12); color:var(--grn); }
+.ltag.d { background:rgba(255,69,69,.12); color:#ff7070; }
+.ltag.a { background:rgba(232,255,59,.1); color:var(--acc); }
+.lwho { font-size:11px; color:var(--mut); }
+.lwhen { font-size:10px; color:#444; }
+.acard { background:var(--sur2); border:1px solid var(--bdr); border-radius:5px; padding:9px 11px; margin-bottom:5px; }
+.aname { font-size:12px; font-weight:600; margin-bottom:1px; }
+.ameta { font-size:11px; color:var(--mut); margin-bottom:6px; }
+.abtn { font-size:11px; font-weight:600; padding:4px 9px; border-radius:4px; cursor:pointer; border:1px solid var(--bdr2); background:transparent; margin-right:4px; }
+.abtn.ok  { color:var(--grn); border-color:rgba(74,222,128,.3); }
+.abtn.ok:hover  { background:rgba(74,222,128,.1); }
+.abtn.no  { color:var(--red); border-color:rgba(255,69,69,.25); }
+.abtn.no:hover  { background:rgba(255,69,69,.08); }
+.abtn.mka { color:var(--acc); border-color:rgba(232,255,59,.2); font-size:10px; }
+.ainput-row { display:flex; gap:5px; padding:0 8px 6px; }
+.ainput-row input { flex:1; background:var(--sur2); border:1px solid var(--bdr2); border-radius:4px; color:var(--txt); font-family:'DM Sans',sans-serif; font-size:12px; padding:5px 8px; outline:none; }
+.ainput-row input:focus { border-color:var(--acc); }
+
+/* Context menu */
+.cmenu { position:fixed; background:#1e1e1e; border:1px solid var(--bdr2); border-radius:6px; padding:4px 0; z-index:9999; min-width:150px; box-shadow:0 6px 24px rgba(0,0,0,.6); font-size:12px; }
+.cmitem { padding:7px 12px; cursor:pointer; color:var(--txt); display:flex; align-items:center; gap:7px; }
+.cmitem:hover { background:rgba(255,255,255,.06); }
+.cmitem.r { color:var(--red); }
+.cmsep { height:1px; background:var(--bdr); margin:3px 0; }
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:var(--bdr2); border-radius:2px; }
+
+/* Print */
+#pstage { display:none; }
+@media print {
+  html,body { height:auto; overflow:visible; background:#fff; }
+  #app { display:none !important; }
+  #pstage { display:block !important; }
+  .pp { page-break-after:always; padding:20px; }
+  .pp:last-child { page-break-after:auto; }
+  .pphead { display:flex; justify-content:space-between; border-bottom:2px solid #111; padding-bottom:8px; margin-bottom:12px; }
+  .pptitle { font-size:22px; font-weight:700; }
+  .ppmeta { font-size:11px; color:#666; text-align:right; }
+  .ppimg { width:100%; max-width:520px; display:block; margin:0 auto; border:1px solid #ddd; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">FFA <span>Playmaker</span></div>
+
+  <div id="team-hg" style="display:none" class="hg">
+    <span class="hlbl">Team</span>
+    <select id="team-sel" style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:4px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:12px;padding:4px 7px;outline:none;cursor:pointer;" onchange="switchTeam(this.value)">
+      <option value="">—</option>
+    </select>
+  </div>
+
+  <div class="hg">
+    <span class="hlbl">#</span>
+    <input id="inp-num" class="hnum" type="text" value="01" maxlength="4">
+  </div>
+  <div class="hg" style="flex:1">
+    <span class="hlbl">Play name</span>
+    <input id="inp-name" class="hname" type="text" placeholder="Name this play…" value="Play 1">
+  </div>
+  <div class="hg">
+    <button class="hbtn" onclick="newPlay()">＋ New</button>
+    <button class="hbtn" onclick="clearField()">Clear</button>
+    <button class="hbtn" onclick="undo()">↩</button>
+    <button class="hbtn" onclick="redo()">↪</button>
+  </div>
+  <div class="hg">
+    <button class="hbtn pri" id="savebtn" onclick="savePlay()">Save play</button>
+    <button class="hbtn" onclick="printAll()">🖨</button>
+  </div>
+  <div id="syncwrap">
+    <div class="dot" id="sdot"></div>
+    <span id="slbl">—</span>
+    <button class="hbtn" style="font-size:11px;padding:3px 8px;margin-left:4px;" onclick="doLogout()">Log out</button>
+  </div>
+</header>
+
+<!-- LEFT -->
+<aside id="left">
+  <div class="panel-head">
+    <div class="panel-title">Players &amp; Routes</div>
+  </div>
+  <div class="panel-body">
+    <div class="sec">Offence</div>
+    <div id="player-count">0 / 10 players</div>
+    <div class="plyr-tile" data-lbl="QB" onclick="addPlayer('QB')"><div class="dot-lbl">QB</div><div><div class="plyr-name">Quarterback</div><div class="plyr-hint">Signal caller</div></div></div>
+    <div class="plyr-tile" data-lbl="C"  onclick="addPlayer('C')"><div class="dot-lbl">C</div><div><div class="plyr-name">Centre</div><div class="plyr-hint">Snapper, on LOS</div></div></div>
+    <div class="plyr-tile" data-lbl="SL" onclick="addPlayer('SL')"><div class="dot-lbl">SL</div><div><div class="plyr-name">Slot</div><div class="plyr-hint">Inside receiver</div></div></div>
+    <div class="plyr-tile" data-lbl="WR" onclick="addPlayer('WR')"><div class="dot-lbl">WR</div><div><div class="plyr-name">Wide Receiver</div><div class="plyr-hint">Split wide</div></div></div>
+
+    <div class="sec" style="margin-top:6px">Route mode</div>
+    <div class="mode-grid" id="mode-grid">
+      <div class="mbtn on" data-mode="select" onclick="setMode('select')">
+        <svg viewBox="0 0 30 19"><circle cx="9" cy="9.5" r="5.5" fill="none" stroke="#888" stroke-width="1.5"/><line x1="14" y1="9.5" x2="27" y2="9.5" stroke="#888" stroke-width="1.5"/><polygon points="25,7 29,9.5 25,12" fill="#888"/></svg>
+        <span class="mlbl">Move</span>
+      </div>
+      <div class="mbtn" data-mode="go" onclick="setMode('go')">
+        <svg viewBox="0 0 30 19"><line x1="15" y1="18" x2="15" y2="3" stroke="#e8ff3b" stroke-width="2"/><polygon points="12,5 15,1 18,5" fill="#e8ff3b"/></svg>
+        <span class="mlbl">Go</span>
+      </div>
+      <div class="mbtn" data-mode="out" onclick="setMode('out')">
+        <svg viewBox="0 0 30 19"><polyline points="7,18 7,7 25,7" fill="none" stroke="#e8ff3b" stroke-width="2"/><polygon points="23,4 28,7 23,10" fill="#e8ff3b"/></svg>
+        <span class="mlbl">Out / In</span>
+      </div>
+      <div class="mbtn" data-mode="curl" onclick="setMode('curl')">
+        <svg viewBox="0 0 30 19"><path d="M7,18 Q7,3 22,4 Q28,4 26,12" fill="none" stroke="#e8ff3b" stroke-width="2"/><circle cx="26" cy="12" r="3" fill="#e8ff3b"/></svg>
+        <span class="mlbl">Curl</span>
+      </div>
+      <div class="mbtn" data-mode="post" onclick="setMode('post')">
+        <svg viewBox="0 0 30 19"><polyline points="6,18 6,9 25,3" fill="none" stroke="#e8ff3b" stroke-width="2"/><polygon points="23,1 28,4 24,7" fill="#e8ff3b"/></svg>
+        <span class="mlbl">Post</span>
+      </div>
+      <div class="mbtn" data-mode="cross" onclick="setMode('cross')">
+        <svg viewBox="0 0 30 19"><polyline points="5,5 5,12 26,12" fill="none" stroke="#e8ff3b" stroke-width="2"/><polygon points="24,9 29,12 24,15" fill="#e8ff3b"/></svg>
+        <span class="mlbl">Cross</span>
+      </div>
+      <div class="mbtn" data-mode="screen" onclick="setMode('screen')">
+        <svg viewBox="0 0 30 19"><polyline points="26,9 12,9 12,17" fill="none" stroke="#e8ff3b" stroke-width="2" stroke-dasharray="4 2"/><polygon points="9,15 12,19 15,15" fill="#e8ff3b"/></svg>
+        <span class="mlbl">Screen</span>
+      </div>
+      <div class="mbtn" data-mode="motion" onclick="setMode('motion')">
+        <svg viewBox="0 0 30 19"><path d="M4,9.5 Q8,3 14,9.5 Q20,16 25,9.5" fill="none" stroke="#aaa" stroke-width="2" stroke-dasharray="3 2"/><polygon points="23,7 27,9.5 23,12" fill="#aaa"/></svg>
+        <span class="mlbl">Motion</span>
+      </div>
+      <div class="mbtn" data-mode="free" onclick="setMode('free')">
+        <svg viewBox="0 0 30 19"><path d="M3,16 Q6,5 11,9 Q16,13 19,5 Q22,0 26,7" fill="none" stroke="#e8ff3b" stroke-width="2" stroke-linecap="round"/><circle cx="26" cy="7" r="2.5" fill="#e8ff3b"/></svg>
+        <span class="mlbl">Free</span>
+      </div>
+      <div class="mbtn" data-mode="erase" onclick="setMode('erase')" style="grid-column:1/-1">
+        <svg viewBox="0 0 30 19" style="width:24px"><rect x="4" y="5" width="22" height="11" rx="3" fill="none" stroke="#888" stroke-width="1.5"/><line x1="4" y1="10" x2="26" y2="10" stroke="#888" stroke-width=".8"/></svg>
+        <span class="mlbl">Erase routes</span>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;font-size:10px;color:var(--mut);line-height:1.7;padding:2px">
+      Click player to add · drag to reposition<br>
+      <kbd style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:2px;padding:1px 4px">Ctrl+Z</kbd> undo &nbsp;
+      <kbd style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:2px;padding:1px 4px">Ctrl+Y</kbd> redo &nbsp;
+      <kbd style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:2px;padding:1px 4px">Del</kbd> remove
+    </div>
+  </div>
+</aside>
+
+<!-- CANVAS -->
+<main id="mid">
+  <canvas id="cv"></canvas>
+</main>
+
+<!-- RIGHT -->
+<aside id="right">
+  <div class="rtabs">
+    <div class="rtab on" id="tab-plays" onclick="switchTab('plays')">Plays</div>
+    <div class="rtab" id="tab-teams" onclick="switchTab('teams')">Teams</div>
+    <div class="rtab" id="tab-log"   onclick="switchTab('log')">Log</div>
+    <div class="rtab" id="tab-admin" onclick="switchTab('admin')" style="display:none">Admin<span class="rbadge" id="badge-admin"></span></div>
+  </div>
+
+  <div class="rpane on" id="pane-plays">
+    <div class="plist" id="plist"><div class="empty">No plays yet.<br>Build one and hit <b>Save play</b>.</div></div>
+  </div>
+
+  <div class="rpane" id="pane-teams">
+    <div class="tpane" id="tpane"><div class="empty">Loading…</div></div>
+  </div>
+
+  <div class="rpane" id="pane-log">
+    <div style="padding:8px" id="logpane"><div class="empty">No activity yet.</div></div>
+  </div>
+
+  <div class="rpane" id="pane-admin">
+    <div style="padding:8px">
+      <div class="tsec">Create team</div>
+      <div class="ainput-row">
+        <input id="new-team-inp" placeholder="Team name…" onkeydown="if(event.key==='Enter')createTeam()">
+        <button class="abtn ok" onclick="createTeam()">＋</button>
+      </div>
+      <div class="tsec" style="margin-top:6px">Join requests</div>
+      <div id="admin-req"><div class="empty" style="padding:6px 0">None pending.</div></div>
+      <div class="tsec" style="margin-top:6px">Members</div>
+      <div id="admin-mem"></div>
+      <div class="tsec" style="margin-top:6px">Teams</div>
+      <div id="admin-teams"></div>
+    </div>
+  </div>
+</aside>
+
+</div><!-- /app -->
+<div id="pstage"></div>
+
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
+import { getDatabase, ref, set, remove, get, onValue, push, update } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js';
+
+const FB = {
+  apiKey:"AIzaSyCzvBIS73Fno-7pa09O9Et_XR2pyuUD0zw",
+  authDomain:"ffa-playmaker.firebaseapp.com",
+  databaseURL:"https://ffa-playmaker-default-rtdb.firebaseio.com",
+  projectId:"ffa-playmaker",
+  storageBucket:"ffa-playmaker.firebasestorage.app",
+  messagingSenderId:"933713794922",
+  appId:"1:933713794922:web:72fec8fa4cf21a57173713"
+};
+const app  = initializeApp(FB);
+const auth = getAuth(app);
+const db   = getDatabase(app);
+
+// ── State ──────────────────────────────────────────────────────────
+const cv  = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W=0, H=0, YD=0, LOS=0;
+let players=[], routes=[], playbook=[];
+let mode='select', selId=null, drag=null, activeId=null;
+let chipLbl=null, rStart=null, rWip=null;
+let freeOn=false, freePts=[], freePid=null;
+const undoStack=[], redoStack=[];
+let lastSig='', teamUnsub=null, logUnsub=null;
+const RCOL='#1d4ed8', MCOL='#6b7280', RW=2.5;
+
+// User / team
+let me=null, myProfile=null, myMems={}, allTeams={}, activeTeamId=null;
+
+function uid(){ return Date.now()+'_'+Math.random().toString(36).slice(2,7); }
+
+// ── Sync indicator ─────────────────────────────────────────────────
+function sync(state, lbl){
+  document.getElementById('sdot').className = 'dot '+state;
+  document.getElementById('slbl').textContent = lbl;
+}
+
+// ── Auth guard ─────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if(!user){ location.href='index.html'; return; }
+  me = user;
+  const s = await get(ref(db,'ffa/users/'+user.uid)).catch(()=>null);
+  if(!s||!s.val()){ location.href='index.html'; return; }
+  myProfile = s.val();
+  document.getElementById('slbl').textContent = myProfile.name;
+
+  if(myProfile.admin){
+    document.getElementById('tab-admin').style.display='flex';
+    listenAdmin();
+  }
+
+  onValue(ref(db,'ffa/memberships/'+user.uid), sn => {
+    myMems = sn.val()||{};
+    refreshTeamDrop();
+    refreshTeamPane();
+  });
+  onValue(ref(db,'ffa/teams'), sn => {
+    allTeams = sn.val()||{};
+    refreshTeamDrop();
+    refreshTeamPane();
+  });
+
+  // Size canvas once layout is painted
+  requestAnimationFrame(()=>{ sizeCanvas(); defaultFormation(); });
+});
+
+window.doLogout = ()=>{ signOut(auth).then(()=>location.href='index.html'); };
+
+// ── Tab switching ──────────────────────────────────────────────────
+function switchTab(name){
+  ['plays','teams','log','admin'].forEach(t=>{
+    document.getElementById('tab-'+t)?.classList.toggle('on', t===name);
+    document.getElementById('pane-'+t)?.classList.toggle('on', t===name);
+  });
+}
+window.switchTab = switchTab;
+
+// ── Team dropdown ──────────────────────────────────────────────────
+function refreshTeamDrop(){
+  const approved = Object.entries(myMems)
+    .filter(([,m])=>m.status==='member')
+    .map(([id])=>({id, name:(allTeams[id]?.name||id)}));
+
+  const hg  = document.getElementById('team-hg');
+  const sel = document.getElementById('team-sel');
+
+  if(!approved.length){ hg.style.display='none'; return; }
+  hg.style.display='flex';
+
+  const prev = sel.value;
+  sel.innerHTML = approved.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  if(prev && approved.find(t=>t.id===prev)) sel.value=prev;
+
+  if(sel.value !== activeTeamId) switchTeam(sel.value);
+}
+
+window.switchTeam = function(teamId){
+  if(!teamId || teamId===activeTeamId) return;
+  activeTeamId = teamId;
+  document.getElementById('team-sel').value = teamId;
+
+  // Unsubscribe previous listeners
+  if(teamUnsub){ teamUnsub(); teamUnsub=null; }
+  if(logUnsub){  logUnsub();  logUnsub=null;  }
+
+  players=[]; routes=[]; activeId=null; selId=null; playbook=[];
+  renderPlaybook(); lastSig='';
+  sync('busy','Connecting…');
+
+  teamUnsub = onValue(ref(db,'ffa/teams/'+teamId+'/plays'), sn=>{
+    const data = sn.val();
+    const incoming = data ? Object.values(data) : [];
+    incoming.sort((a,b)=>(a._order||0)-(b._order||0));
+    const sig = incoming.map(p=>p.id+'_'+(p._ts||0)).join(',');
+    if(sig===lastSig) return;
+    lastSig=sig; playbook=incoming;
+    renderPlaybook(true);
+    if(!incoming.length) defaultFormation();
+    sync('live', (allTeams[teamId]?.name||teamId)+' · '+incoming.length+' play'+(incoming.length===1?'':'s'));
+  }, ()=>sync('err','Sync error'));
+
+  logUnsub = onValue(ref(db,'ffa/teams/'+teamId+'/log'), sn=>{
+    const data = sn.val();
+    const entries = data ? Object.values(data) : [];
+    entries.sort((a,b)=>b.ts-a.ts);
+    renderLog(entries);
+  });
+};
+
+// ── Teams pane ─────────────────────────────────────────────────────
+function refreshTeamPane(){
+  const el = document.getElementById('tpane');
+  el.innerHTML='';
+
+  const myIds = Object.keys(myMems);
+  const others = Object.entries(allTeams).filter(([id])=>!myMems[id]);
+
+  if(myIds.length){
+    const h=document.createElement('div'); h.className='tsec'; h.textContent='My teams'; el.appendChild(h);
+    myIds.forEach(tid=>{
+      const t=allTeams[tid]||{name:tid}, m=myMems[tid];
+      const c=document.createElement('div'); c.className='tcard';
+      c.innerHTML=`<div class="tcard-name">${t.name}</div>
+        <span class="pill ${m.status==='member'?'ok':'pend'}">${m.status==='member'?'Member':'Pending'}</span><br>
+        <button class="tbtn leave" onclick="leaveTeam('${tid}','${t.name.replace(/'/g,"\\'")}')">Leave</button>`;
+      el.appendChild(c);
+    });
+  }
+
+  if(others.length){
+    const h=document.createElement('div'); h.className='tsec'; h.textContent='Available teams';
+    h.style.marginTop=myIds.length?'8px':'0'; el.appendChild(h);
+    others.forEach(([tid,t])=>{
+      const c=document.createElement('div'); c.className='tcard';
+      c.innerHTML=`<div class="tcard-name">${t.name}</div>
+        <div class="tcard-meta">Request to join</div>
+        <button class="tbtn join" onclick="requestJoin('${tid}','${t.name.replace(/'/g,"\\'")}')">Request to join</button>`;
+      el.appendChild(c);
+    });
+  }
+
+  if(!myIds.length && !others.length)
+    el.innerHTML='<div class="empty">No teams yet.<br>An admin can create teams in the Admin tab.</div>';
+}
+
+window.requestJoin = async (teamId, teamName)=>{
+  await set(ref(db,'ffa/memberships/'+me.uid+'/'+teamId),{status:'pending',requestedAt:Date.now(),teamName});
+  await set(ref(db,'ffa/joinRequests/'+teamId+'/'+me.uid),{uid:me.uid,name:myProfile.name,email:me.email,teamId,teamName,requestedAt:Date.now()});
+};
+window.leaveTeam = async (teamId, teamName)=>{
+  if(!confirm('Leave "'+teamName+'"?')) return;
+  await remove(ref(db,'ffa/memberships/'+me.uid+'/'+teamId));
+  await remove(ref(db,'ffa/joinRequests/'+teamId+'/'+me.uid));
+  if(activeTeamId===teamId){ activeTeamId=null; lastSig=''; }
+};
+
+// ── Admin ──────────────────────────────────────────────────────────
+function listenAdmin(){
+  onValue(ref(db,'ffa/joinRequests'), sn=>{
+    const data=sn.val()||{};
+    const reqs=[];
+    Object.entries(data).forEach(([tid,rs])=>Object.values(rs).forEach(r=>reqs.push({...r,teamId:tid})));
+    reqs.sort((a,b)=>a.requestedAt-b.requestedAt);
+    const el=document.getElementById('admin-req');
+    if(!reqs.length){ el.innerHTML='<div class="empty" style="padding:4px 0">None pending.</div>'; }
+    else {
+      el.innerHTML='';
+      reqs.forEach(r=>{
+        const c=document.createElement('div'); c.className='acard';
+        c.innerHTML=`<div class="aname">${r.name}</div><div class="ameta">${r.email} → ${allTeams[r.teamId]?.name||r.teamId}</div>
+          <button class="abtn ok" onclick="approveReq('${r.uid}','${r.name.replace(/'/g,"\\'")}','${r.teamId}','${(allTeams[r.teamId]?.name||r.teamId).replace(/'/g,"\\'")}')">✓ Approve</button>
+          <button class="abtn no" onclick="denyReq('${r.uid}','${r.teamId}')">✕ Deny</button>`;
+        el.appendChild(c);
+      });
+    }
+    const b=document.getElementById('badge-admin');
+    b.textContent=reqs.length||''; b.classList.toggle('show',reqs.length>0);
+  });
+
+  onValue(ref(db,'ffa/users'), sn=>{
+    const data=sn.val()||{};
+    const el=document.getElementById('admin-mem'); el.innerHTML='';
+    Object.values(data).sort((a,b)=>a.name.localeCompare(b.name)).forEach(u=>{
+      const c=document.createElement('div'); c.className='acard';
+      const isMe=u.uid===me.uid;
+      c.innerHTML=`<div class="aname">${u.name}${isMe?' (you)':''}</div><div class="ameta">${u.email}${u.admin?' · Admin':''}</div>
+        ${!isMe&&!u.admin?`<button class="abtn mka" onclick="setAdmin('${u.uid}',true)">Make admin</button>`:''}
+        ${!isMe&&u.admin?`<button class="abtn no" style="font-size:10px" onclick="setAdmin('${u.uid}',false)">Remove admin</button>`:''}`;
+      el.appendChild(c);
+    });
+  });
+
+  onValue(ref(db,'ffa/teams'), sn=>{
+    const data=sn.val()||{};
+    const el=document.getElementById('admin-teams'); el.innerHTML='';
+    Object.entries(data).sort((a,b)=>a[1].name.localeCompare(b[1].name)).forEach(([id,t])=>{
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bdr);font-size:12px;';
+      row.innerHTML=`<span>${t.name}</span><button class="abtn no" onclick="deleteTeam('${id}','${t.name.replace(/'/g,"\\'")}')">✕</button>`;
+      el.appendChild(row);
+    });
+  });
+}
+
+window.approveReq = async (uid,name,teamId,teamName)=>{
+  await update(ref(db,'ffa/memberships/'+uid+'/'+teamId),{status:'member',approvedAt:Date.now(),teamName});
+  await remove(ref(db,'ffa/joinRequests/'+teamId+'/'+uid));
+  await writeLog(teamId,'admin',name+' approved');
+};
+window.denyReq = async (uid,teamId)=>{
+  await remove(ref(db,'ffa/memberships/'+uid+'/'+teamId));
+  await remove(ref(db,'ffa/joinRequests/'+teamId+'/'+uid));
+};
+window.setAdmin = async (uid,val)=>{
+  if(!confirm((val?'Give':'Remove')+' admin rights?')) return;
+  await update(ref(db,'ffa/users/'+uid),{admin:val});
+};
+window.createTeam = async ()=>{
+  const inp=document.getElementById('new-team-inp');
+  const name=inp.value.trim(); if(!name){inp.focus();return;}
+  const id=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const initials=name.split(/\s+/).map(w=>w[0]).join('').toUpperCase().substring(0,3)||name.substring(0,2).toUpperCase();
+  await set(ref(db,'ffa/teams/'+id),{id,name,initials});
+  inp.value='';
+};
+window.deleteTeam = async (id,name)=>{
+  if(!confirm('Delete "'+name+'"?')) return;
+  await remove(ref(db,'ffa/teams/'+id));
+};
+
+// ── Log ────────────────────────────────────────────────────────────
+async function writeLog(teamId,action,detail){
+  try{ await push(ref(db,'ffa/teams/'+teamId+'/log'),{action,detail,who:myProfile?.name||'?',ts:Date.now()}); }catch(e){}
+}
+function renderLog(entries){
+  const el=document.getElementById('logpane'); el.innerHTML='';
+  if(!entries.length){el.innerHTML='<div class="empty">No activity yet.</div>';return;}
+  entries.slice(0,80).forEach(e=>{
+    const d=new Date(e.ts);
+    const t=d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+    const cls=e.action==='saved'?'s':e.action==='deleted'?'d':'a';
+    const div=document.createElement('div'); div.className='lentry';
+    div.innerHTML=`<div><span class="ltag ${cls}">${e.action.toUpperCase()}</span>${e.detail||''}</div><div class="lwho">${e.who||'?'}</div><div class="lwhen">${t}</div>`;
+    el.appendChild(div);
+  });
+}
+
+// ── Canvas sizing ──────────────────────────────────────────────────
+function sizeCanvas(){
+  const mid = document.getElementById('mid');
+  const mw = mid.clientWidth, mh = mid.clientHeight;
+  if(mw < 10 || mh < 10){ requestAnimationFrame(sizeCanvas); return; }
+  const aspect = 35/40;
+  let cw=mw, ch=cw*aspect;
+  if(ch > mh){ ch=mh; cw=ch/aspect; }
+  cv.width=Math.floor(cw); cv.height=Math.floor(ch);
+  W=cv.width; H=cv.height; YD=H/35; LOS=H*(28/35);
+  redraw();
+}
+window.addEventListener('resize',()=>{ sizeCanvas(); });
+new ResizeObserver(()=>sizeCanvas()).observe(document.getElementById('mid'));
+
+// ── Field ──────────────────────────────────────────────────────────
+function drawField(){
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+
+  // Alternating bands relative to LOS
+  for(let y=-5; y<=25; y+=10){
+    const y1=LOS-y*YD, y2=LOS-(y+5)*YD;
+    ctx.fillStyle='rgba(0,0,0,0.03)';
+    ctx.fillRect(0,Math.min(y1,y2),W,Math.abs(y2-y1));
+  }
+  // End zone tint
+  ctx.fillStyle='rgba(34,100,54,0.08)'; ctx.fillRect(0,LOS,W,H-LOS);
+
+  // Yard lines relative to LOS
+  for(let y=-8; y<=28; y++){
+    const py=LOS-y*YD; if(py<0||py>H) continue;
+    const major=(y%5===0);
+    ctx.strokeStyle=major?'rgba(0,0,0,0.25)':'rgba(0,0,0,0.07)';
+    ctx.lineWidth=major?1:0.5;
+    ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(W,py); ctx.stroke();
+  }
+
+  // Sidelines
+  ctx.strokeStyle='rgba(0,0,0,0.6)'; ctx.lineWidth=2;
+  ctx.strokeRect(1,1,W-2,H-2);
+
+  // Yard numbers
+  ctx.font=`600 ${Math.max(8,W*0.024)}px 'DM Sans',sans-serif`;
+  ctx.textBaseline='middle'; ctx.fillStyle='rgba(0,0,0,0.3)';
+  for(let y=5; y<=25; y+=5){
+    const py=LOS-y*YD; if(py<6||py>H-6) continue;
+    ctx.textAlign='left';  ctx.fillText(y, 6, py);
+    ctx.textAlign='right'; ctx.fillText(y, W-6, py);
+  }
+
+  // Hash marks
+  const hl=W*0.02, hx1=W*0.38, hx2=W*0.62;
+  ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1;
+  for(let y=-8; y<=28; y++){
+    const py=LOS-y*YD; if(py<0||py>H) continue;
+    ctx.beginPath(); ctx.moveTo(hx1,py); ctx.lineTo(hx1+hl,py); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(hx2,py); ctx.lineTo(hx2-hl,py); ctx.stroke();
+  }
+
+  // LOS
+  ctx.save();
+  ctx.strokeStyle='#1d4ed8'; ctx.lineWidth=2.5; ctx.setLineDash([9,5]); ctx.globalAlpha=0.8;
+  ctx.beginPath(); ctx.moveTo(0,LOS); ctx.lineTo(W,LOS); ctx.stroke();
+  ctx.setLineDash([]); ctx.globalAlpha=1;
+  ctx.fillStyle='#1d4ed8'; ctx.font=`700 ${Math.max(8,W*0.02)}px 'DM Sans',sans-serif`;
+  ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText('LOS',5,LOS+3);
+  ctx.restore();
+
+  // Rush line
+  const ry=LOS-YD*7; if(ry>2){
+    ctx.save(); ctx.strokeStyle='rgba(220,38,38,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(0,ry); ctx.lineTo(W,ry); ctx.stroke();
+    ctx.setLineDash([]); ctx.restore();
+  }
+}
+
+// ── Routes ─────────────────────────────────────────────────────────
+function buildPts(s,e,type){
+  switch(type){
+    case 'go':    return [{x:s.x,y:s.y},{x:s.x,y:e.y}];
+    case 'out':  { const uy=s.y+(e.y-s.y)*0.6; return [{x:s.x,y:s.y},{x:s.x,y:uy},{x:e.x,y:uy}]; }
+    case 'curl': { const d=Math.min(s.y-YD*3,e.y); return [{x:s.x,y:s.y},{x:s.x,y:d},{x:s.x,y:d+YD*2.5}]; }
+    case 'post': { const my=s.y+(e.y-s.y)*0.55,mx=s.x+(W/2-s.x)*0.65; return [{x:s.x,y:s.y},{x:s.x,y:my},{x:mx,y:e.y}]; }
+    case 'cross':{ const sy2=s.y-YD*2; return [{x:s.x,y:s.y},{x:s.x,y:sy2},{x:e.x,y:sy2}]; }
+    case 'screen':{ const by=s.y+YD*1.5; return [{x:s.x,y:s.y},{x:s.x,y:by},{x:e.x,y:by}]; }
+    case 'motion': return [{x:s.x,y:s.y},{x:e.x,y:s.y}];
+    default: return [{x:s.x,y:s.y},{x:e.x,y:e.y}];
+  }
+}
+
+function arrow(pts, col, dashed, alpha){
+  if(!pts||pts.length<2) return;
+  ctx.save(); if(alpha) ctx.globalAlpha=alpha;
+  ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=RW; ctx.lineJoin='round'; ctx.lineCap='round';
+  if(dashed) ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.stroke(); ctx.setLineDash([]);
+  const l=pts[pts.length-1], p=pts[pts.length-2];
+  const a=Math.atan2(l.y-p.y,l.x-p.x), al=11, aw=0.42;
+  ctx.beginPath(); ctx.moveTo(l.x,l.y);
+  ctx.lineTo(l.x-al*Math.cos(a-aw),l.y-al*Math.sin(a-aw));
+  ctx.lineTo(l.x-al*Math.cos(a+aw),l.y-al*Math.sin(a+aw));
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+function drawRoutes(){
+  routes.forEach(r=>{
+    const col=r.type==='motion'?MCOL:RCOL;
+    arrow(r.pts, col, r.type==='motion'||r.type==='screen');
+  });
+  if(rStart&&rWip&&mode!=='select'&&mode!=='erase'&&mode!=='free')
+    arrow(buildPts(rStart,rWip,mode), mode==='motion'?MCOL:RCOL, mode==='motion'||mode==='screen', 0.35);
+  if(freeOn&&freePts.length>1){
+    ctx.save(); ctx.strokeStyle=RCOL; ctx.lineWidth=RW; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.globalAlpha=0.5;
+    ctx.beginPath(); ctx.moveTo(freePts[0].x,freePts[0].y);
+    freePts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y)); ctx.stroke(); ctx.restore();
+  }
+}
+
+// ── Players ────────────────────────────────────────────────────────
+const PR=()=>Math.max(13,W*0.023);
+const PROTECTED=['QB','C'];
+
+function drawPlayers(){
+  const r=PR();
+  players.forEach(p=>{
+    const sel=p.id===selId;
+    const prot=PROTECTED.includes(p.customLbl||p.lbl);
+    ctx.save();
+    if(sel){
+      ctx.beginPath(); ctx.arc(p.x,p.y,r+5,0,Math.PI*2);
+      ctx.fillStyle='rgba(29,78,216,0.1)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x,p.y,r+3,0,Math.PI*2);
+      ctx.strokeStyle='rgba(29,78,216,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+    // Shadow
+    ctx.beginPath(); ctx.arc(p.x+1,p.y+1,r,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fill();
+    // Fill
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fillStyle=prot?'#fbbf24':'#e8ff3b'; ctx.fill();
+    ctx.strokeStyle=sel?'#1d4ed8':'rgba(0,0,0,0.25)'; ctx.lineWidth=sel?2:1; ctx.stroke();
+    // Label
+    const lbl=(p.customLbl||p.lbl).substring(0,4);
+    ctx.fillStyle='#000'; ctx.font=`700 ${Math.max(7,r*0.65)}px 'DM Sans',sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(lbl,p.x,p.y+0.5);
+    // Delete button (non-protected, select mode)
+    if(mode==='select'&&!prot){
+      const bx=p.x+r*0.7, by=p.y-r*0.7, br=r*0.36;
+      ctx.beginPath(); ctx.arc(bx,by,br,0,Math.PI*2); ctx.fillStyle='#ef4444'; ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font=`700 ${Math.max(6,br*1.4)}px 'DM Sans',sans-serif`;
+      ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('✕',bx,by+0.5);
+    }
+    ctx.restore();
+  });
+}
+
+function redraw(){ ctx.clearRect(0,0,W,H); drawField(); drawRoutes(); drawPlayers(); }
+
+// ── Interaction helpers ────────────────────────────────────────────
+function getAt(x,y){ const r=PR()+4; return [...players].reverse().find(p=>Math.hypot(p.x-x,p.y-y)<r); }
+function cxy(e){ const rc=cv.getBoundingClientRect(); return {x:e.clientX-rc.left,y:e.clientY-rc.top}; }
+function getDelBtn(x,y){
+  const r=PR();
+  return [...players].reverse().find(p=>{
+    if(PROTECTED.includes(p.customLbl||p.lbl)||mode!=='select') return false;
+    return Math.hypot(x-(p.x+r*0.7), y-(p.y-r*0.7)) < r*0.36+4;
+  });
+}
+
+// ── Undo / redo ────────────────────────────────────────────────────
+function snap(){
+  undoStack.push({players:JSON.parse(JSON.stringify(players)),routes:JSON.parse(JSON.stringify(routes))});
+  if(undoStack.length>50) undoStack.shift();
+  redoStack.length=0;
+}
+function undo(){
+  if(!undoStack.length) return;
+  redoStack.push({players:JSON.parse(JSON.stringify(players)),routes:JSON.parse(JSON.stringify(routes))});
+  const s=undoStack.pop(); players=s.players; routes=s.routes; selId=null; updCount(); redraw();
+}
+function redo(){
+  if(!redoStack.length) return;
+  undoStack.push({players:JSON.parse(JSON.stringify(players)),routes:JSON.parse(JSON.stringify(routes))});
+  const s=redoStack.pop(); players=s.players; routes=s.routes; selId=null; updCount(); redraw();
+}
+window.undo=undo; window.redo=redo;
+
+// ── Player management ──────────────────────────────────────────────
+function updCount(){ document.getElementById('player-count').textContent=players.length+' / 10 players'; }
+
+const DEFAULT_POS={
+  'QB':()=>({x:W/2,         y:LOS+YD*4}),
+  'C' :()=>({x:W/2,         y:LOS}),
+  'SL':()=>({x:W/2-W*0.11,  y:LOS}),
+  'WR':()=>({
+    x:players.filter(p=>(p.lbl==='WR'||p.customLbl==='WR')).length%2===0 ? W*0.07 : W*0.93,
+    y:LOS
+  }),
+};
+
+window.addPlayer = function(lbl){
+  if(players.length>=10){ alert('Max 10 players.'); return; }
+  snap();
+  const pos=DEFAULT_POS[lbl]?DEFAULT_POS[lbl]():{x:W/2,y:LOS};
+  players.push({id:uid(),x:pos.x,y:pos.y,lbl,customLbl:null});
+  updCount(); redraw();
+};
+
+function delPlayer(id){
+  const p=players.find(pl=>pl.id===id); if(!p) return;
+  if(PROTECTED.includes(p.customLbl||p.lbl)){ alert('QB and C are required.'); return; }
+  snap(); players=players.filter(pl=>pl.id!==id); routes=routes.filter(r=>r.pid!==id);
+  if(selId===id) selId=null; updCount(); redraw();
+}
+
+// ── Drag tiles ─────────────────────────────────────────────────────
+document.querySelectorAll('.plyr-tile').forEach(t=>{
+  t.setAttribute('draggable','true');
+  t.addEventListener('dragstart',e=>{ chipLbl=t.dataset.lbl; e.dataTransfer.effectAllowed='copy'; });
+  t.addEventListener('dragend',()=>chipLbl=null);
+});
+document.getElementById('mid').addEventListener('dragover',e=>e.preventDefault());
+document.getElementById('mid').addEventListener('drop',e=>{
+  e.preventDefault(); if(!chipLbl) return;
+  if(players.length>=10){ chipLbl=null; alert('Max 10 players.'); return; }
+  snap();
+  const{x,y}=cxy(e); players.push({id:uid(),x,y,lbl:chipLbl,customLbl:null});
+  chipLbl=null; updCount(); redraw();
+});
+
+// ── Mode ───────────────────────────────────────────────────────────
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
+  cv.style.cursor=m==='select'?'default':m==='erase'?'not-allowed':'crosshair';
+}
+window.setMode=setMode;
+
+// ── Mouse events ───────────────────────────────────────────────────
+cv.addEventListener('mousedown',e=>{
+  if(e.button!==0) return;
+  const{x,y}=cxy(e);
+  const db_=getDelBtn(x,y); if(db_){ delPlayer(db_.id); return; }
+  const p=getAt(x,y);
+  if(mode==='select'){
+    if(p){ snap(); drag={p,ox:x-p.x,oy:y-p.y}; selId=p.id; cv.style.cursor='grabbing'; }
+    else selId=null;
+    redraw(); return;
+  }
+  if(mode==='erase'){ if(p){ snap(); routes=routes.filter(r=>r.pid!==p.id); redraw(); } return; }
+  if(mode==='free'){
+    const src=p||(players.find(pl=>pl.id===selId));
+    if(src){ freeOn=true; freePid=src.id; freePts=[{x:src.x,y:src.y},{x,y}]; selId=src.id; }
+    return;
+  }
+  const src=p||(players.find(pl=>pl.id===selId));
+  if(src){ rStart={pid:src.id,x:src.x,y:src.y}; rWip={x,y}; selId=src.id; }
+});
+
+cv.addEventListener('mousemove',e=>{
+  const{x,y}=cxy(e);
+  if(drag){
+    drag.p.x=x-drag.ox; drag.p.y=y-drag.oy;
+    routes.forEach(r=>{ if(r.pid===drag.p.id&&r.pts.length){ const dx=drag.p.x-r.pts[0].x,dy=drag.p.y-r.pts[0].y; r.pts=r.pts.map(pt=>({x:pt.x+dx,y:pt.y+dy})); }});
+    redraw(); return;
+  }
+  if(freeOn){ const l=freePts[freePts.length-1]; if(Math.hypot(x-l.x,y-l.y)>4){ freePts.push({x,y}); redraw(); } return; }
+  if(rStart){ rWip={x,y}; redraw(); return; }
+  if(mode==='select') cv.style.cursor=getAt(x,y)?'grab':'default';
+});
+
+cv.addEventListener('mouseup',e=>{
+  const{x,y}=cxy(e);
+  if(drag){ cv.style.cursor='grab'; drag=null; return; }
+  if(freeOn){
+    if(freePts.length>2){ snap(); routes.push({pid:freePid,type:'free',pts:rdp(freePts,2)}); }
+    freeOn=false; freePts=[]; freePid=null; redraw(); return;
+  }
+  if(rStart){
+    if(Math.hypot(x-rStart.x,y-rStart.y)>10){ snap(); routes.push({pid:rStart.pid,type:mode,pts:buildPts(rStart,{x,y},mode)}); }
+    rStart=null; rWip=null; redraw();
+  }
+});
+
+cv.addEventListener('mouseleave',()=>{
+  if(freeOn){ if(freePts.length>2){ snap(); routes.push({pid:freePid,type:'free',pts:rdp(freePts,2)}); } freeOn=false; freePts=[]; freePid=null; }
+  if(rStart){ rStart=null; rWip=null; }
+  if(drag) drag=null;
+  redraw();
+});
+
+cv.addEventListener('contextmenu',e=>{
+  e.preventDefault();
+  const{x,y}=cxy(e); const p=getAt(x,y); if(!p) return;
+  document.querySelectorAll('.cmenu').forEach(m=>m.remove());
+  const m=document.createElement('div'); m.className='cmenu';
+  m.style.left=e.clientX+'px'; m.style.top=e.clientY+'px';
+  [
+    {i:'✏️',l:'Rename',fn:()=>{ const v=prompt('Label:',p.customLbl||p.lbl); if(v!==null){ snap(); p.customLbl=v.trim().substring(0,4)||p.lbl; redraw(); }}},
+    {sep:true},
+    {i:'✕',l:'Clear routes',fn:()=>{ snap(); routes=routes.filter(r=>r.pid!==p.id); redraw(); }},
+    {i:'🗑',l:'Remove',cls:'r',fn:()=>delPlayer(p.id)},
+  ].forEach(item=>{
+    if(item.sep){ const d=document.createElement('div'); d.className='cmsep'; m.appendChild(d); return; }
+    const d=document.createElement('div'); d.className='cmitem'+(item.cls?' '+item.cls:'');
+    d.innerHTML=`<span>${item.i}</span><span>${item.l}</span>`;
+    d.onclick=()=>{ item.fn(); m.remove(); }; m.appendChild(d);
+  });
+  document.body.appendChild(m);
+  setTimeout(()=>document.addEventListener('click',()=>m.remove(),{once:true}),10);
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='Escape') setMode('select');
+  if((e.key==='Delete'||e.key==='Backspace')&&selId) delPlayer(selId);
+  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key==='z'){ e.preventDefault(); undo(); }
+  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.shiftKey&&e.key==='z'))){ e.preventDefault(); redo(); }
+});
+
+// ── RDP simplification ─────────────────────────────────────────────
+function rdp(pts,tol){
+  if(pts.length<=2) return pts;
+  function pd(pt,a,b){ const dx=b.x-a.x,dy=b.y-a.y; if(!dx&&!dy) return Math.hypot(pt.x-a.x,pt.y-a.y); const t=((pt.x-a.x)*dx+(pt.y-a.y)*dy)/(dx*dx+dy*dy); return Math.hypot(pt.x-(a.x+t*dx),pt.y-(a.y+t*dy)); }
+  function r2(pts,s,e,tol,k){ if(e<=s+1) return; let md=0,mi=s; for(let i=s+1;i<e;i++){const d=pd(pts[i],pts[s],pts[e]);if(d>md){md=d;mi=i;}} if(md>tol){k.add(mi);r2(pts,s,mi,tol,k);r2(pts,mi,e,tol,k);} }
+  const k=new Set([0,pts.length-1]); r2(pts,0,pts.length-1,tol,k);
+  return pts.filter((_,i)=>k.has(i));
+}
+
+// ── Default formation ──────────────────────────────────────────────
+function defaultFormation(){
+  if(players.length>0) return;
+  if(!W) return; // canvas not sized yet
+  players=[
+    {id:uid(),x:W/2,         y:LOS,      lbl:'C',  customLbl:null},
+    {id:uid(),x:W/2,         y:LOS+YD*4, lbl:'QB', customLbl:null},
+    {id:uid(),x:W/2-W*0.11,  y:LOS,      lbl:'SL', customLbl:null},
+    {id:uid(),x:W*0.07,      y:LOS,      lbl:'WR', customLbl:null},
+    {id:uid(),x:W*0.93,      y:LOS,      lbl:'WR', customLbl:null},
+  ];
+  updCount(); redraw();
+}
+
+// ── Play actions ───────────────────────────────────────────────────
+window.newPlay = ()=>{
+  activeId=null;
+  const n=playbook.length+1;
+  document.getElementById('inp-name').value='Play '+n;
+  document.getElementById('inp-num').value=String(n).padStart(2,'0');
+  players=[]; routes=[]; selId=null;
+  undoStack.length=0; redoStack.length=0;
+  defaultFormation(); renderPlaybook();
+};
+
+window.clearField = ()=>{
+  if(!players.length&&!routes.length) return;
+  if(!confirm('Clear field?')) return;
+  snap(); players=[]; routes=[]; selId=null; updCount(); redraw();
+};
+
+window.undoRoute = undo; // header button
+
+window.savePlay = async ()=>{
+  if(!activeTeamId){ alert('Select a team first.'); return; }
+  const name=document.getElementById('inp-name').value.trim()||'Untitled';
+  const num=document.getElementById('inp-num').value.trim()||'';
+  const thumb=cv.toDataURL('image/png',0.6);
+  const play={
+    id:activeId||uid(), name, num, thumb,
+    savedBy:myProfile?.name||'?', savedAt:Date.now(),
+    players:JSON.parse(JSON.stringify(players)),
+    routes:JSON.parse(JSON.stringify(routes))
+  };
+  const idx=playbook.findIndex(p=>p.id===play.id);
+  if(idx>=0) playbook[idx]=play; else playbook.push(play);
+  activeId=play.id;
+  renderPlaybook();
+  const b=document.getElementById('savebtn'); b.textContent='✓ Saved!';
+  setTimeout(()=>b.textContent='Save play',1100);
+  sync('busy','Saving…');
+  try{
+    play._ts=Date.now(); play._order=playbook.findIndex(p=>p.id===play.id);
+    await set(ref(db,'ffa/teams/'+activeTeamId+'/plays/'+play.id),play);
+    await writeLog(activeTeamId,'saved','"'+name+'" by '+myProfile.name);
+    sync('live','Saved');
+  }catch(err){ sync('err','Save failed'); console.error(err); }
+};
+
+window.deletePlay = async (id)=>{
+  const play=playbook.find(p=>p.id===id);
+  if(!confirm('Remove "'+(play?.name||'this play')+'"?')) return;
+  playbook=playbook.filter(p=>p.id!==id);
+  if(activeId===id) window.newPlay();
+  renderPlaybook();
+  if(activeTeamId){
+    try{
+      await remove(ref(db,'ffa/teams/'+activeTeamId+'/plays/'+id));
+      await writeLog(activeTeamId,'deleted','"'+(play?.name||id)+'" by '+myProfile.name);
+    }catch(err){ console.error(err); }
+  }
+};
+
+function loadPlay(play){
+  activeId=play.id;
+  document.getElementById('inp-name').value=play.name;
+  document.getElementById('inp-num').value=play.num||'';
+  players=JSON.parse(JSON.stringify(play.players));
+  routes=JSON.parse(JSON.stringify(play.routes));
+  selId=null; updCount(); redraw(); renderPlaybook();
+}
+
+function renderPlaybook(flashNew){
+  const list=document.getElementById('plist');
+  if(!playbook.length){ list.innerHTML='<div class="empty">No plays yet.<br>Build one and hit <b>Save play</b>.</div>'; return; }
+  const prev=new Set([...list.querySelectorAll('.pcard')].map(c=>c.dataset.pid));
+  list.innerHTML='';
+  playbook.forEach(play=>{
+    const c=document.createElement('div');
+    c.className='pcard'+(play.id===activeId?' on':''); c.dataset.pid=play.id;
+    if(flashNew&&!prev.has(play.id)) c.classList.add('flash');
+    const t=play.savedAt?new Date(play.savedAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'}):'';
+    c.innerHTML=`
+      <div class="pcard-h">
+        <div><span class="pcard-num">#${play.num||'—'}</span> <span class="pcard-name">${play.name}</span></div>
+        <button class="pcard-del" onclick="event.stopPropagation();deletePlay('${play.id}')">✕</button>
+      </div>
+      ${play.savedBy?`<div class="pcard-by">${play.savedBy}${t?' · '+t:''}</div>`:''}
+      <img class="pcard-thumb" src="${play.thumb}" loading="lazy" alt="${play.name}">`;
+    c.addEventListener('click',()=>loadPlay(play));
+    list.appendChild(c);
+  });
+}
+
+// ── Print ──────────────────────────────────────────────────────────
+window.printAll = ()=>{
+  if(!playbook.length){ alert('No plays to print!'); return; }
+  const stage=document.getElementById('pstage'); stage.innerHTML='';
+  const PW=680, PH=Math.floor(680*(35/40));
+  const tc=document.createElement('canvas'); tc.width=PW; tc.height=PH;
+  const tx=tc.getContext('2d');
+  const teamName=allTeams[activeTeamId]?.name||'';
+
+  playbook.forEach((play,i)=>{
+    const sx=PW/W, sy=PH/H;
+    const sv={W,H,YD,LOS,players,routes};
+    W=PW; H=PH; YD=H/35; LOS=H*(28/35);
+    players=play.players.map(p=>({...p,x:p.x*sx,y:p.y*sy}));
+    routes=play.routes.map(r=>({...r,pts:r.pts.map(pt=>({x:pt.x*sx,y:pt.y*sy}))}));
+
+    // field
+    tx.fillStyle='#fff'; tx.fillRect(0,0,PW,PH);
+    for(let y=-5;y<=25;y+=10){const y1=LOS-y*YD,y2=LOS-(y+5)*YD;tx.fillStyle='rgba(0,0,0,0.03)';tx.fillRect(0,Math.min(y1,y2),PW,Math.abs(y2-y1));}
+    tx.fillStyle='rgba(34,100,54,0.08)';tx.fillRect(0,LOS,PW,PH-LOS);
+    for(let y=-8;y<=28;y++){const py=LOS-y*YD;if(py<0||py>PH)continue;const maj=y%5===0;tx.strokeStyle=maj?'rgba(0,0,0,0.25)':'rgba(0,0,0,0.07)';tx.lineWidth=maj?1:0.5;tx.beginPath();tx.moveTo(0,py);tx.lineTo(PW,py);tx.stroke();}
+    tx.strokeStyle='rgba(0,0,0,0.6)';tx.lineWidth=2;tx.strokeRect(1,1,PW-2,PH-2);
+    tx.font=`600 ${Math.max(8,PW*0.024)}px 'DM Sans',sans-serif`;tx.textBaseline='middle';tx.fillStyle='rgba(0,0,0,0.3)';
+    for(let y=5;y<=25;y+=5){const py=LOS-y*YD;if(py<6||py>PH-6)continue;tx.textAlign='left';tx.fillText(y,6,py);tx.textAlign='right';tx.fillText(y,PW-6,py);}
+    const hl=PW*0.02,hx1=PW*0.38,hx2=PW*0.62;tx.strokeStyle='rgba(0,0,0,0.25)';tx.lineWidth=1;
+    for(let y=-8;y<=28;y++){const py=LOS-y*YD;if(py<0||py>PH)continue;tx.beginPath();tx.moveTo(hx1,py);tx.lineTo(hx1+hl,py);tx.stroke();tx.beginPath();tx.moveTo(hx2,py);tx.lineTo(hx2-hl,py);tx.stroke();}
+    tx.save();tx.strokeStyle='#1d4ed8';tx.lineWidth=2.5;tx.setLineDash([9,5]);tx.globalAlpha=0.8;tx.beginPath();tx.moveTo(0,LOS);tx.lineTo(PW,LOS);tx.stroke();tx.setLineDash([]);tx.globalAlpha=1;tx.fillStyle='#1d4ed8';tx.font=`700 ${Math.max(8,PW*0.02)}px 'DM Sans',sans-serif`;tx.textAlign='left';tx.textBaseline='top';tx.fillText('LOS',5,LOS+3);tx.restore();
+    const ry=LOS-YD*7;if(ry>2){tx.save();tx.strokeStyle='rgba(220,38,38,0.4)';tx.lineWidth=1.5;tx.setLineDash([5,5]);tx.beginPath();tx.moveTo(0,ry);tx.lineTo(PW,ry);tx.stroke();tx.setLineDash([]);tx.restore();}
+    // routes
+    routes.forEach(r=>{if(!r.pts||r.pts.length<2)return;const col=r.type==='motion'?MCOL:RCOL;tx.save();tx.strokeStyle=col;tx.fillStyle=col;tx.lineWidth=RW;tx.lineJoin='round';tx.lineCap='round';if(r.type==='motion'||r.type==='screen')tx.setLineDash([6,4]);tx.beginPath();tx.moveTo(r.pts[0].x,r.pts[0].y);for(let j=1;j<r.pts.length;j++)tx.lineTo(r.pts[j].x,r.pts[j].y);tx.stroke();tx.setLineDash([]);const l=r.pts[r.pts.length-1],pp=r.pts[r.pts.length-2];const a=Math.atan2(l.y-pp.y,l.x-pp.x),al=11,aw=0.42;tx.beginPath();tx.moveTo(l.x,l.y);tx.lineTo(l.x-al*Math.cos(a-aw),l.y-al*Math.sin(a-aw));tx.lineTo(l.x-al*Math.cos(a+aw),l.y-al*Math.sin(a+aw));tx.closePath();tx.fill();tx.restore();});
+    // players
+    const pr=Math.max(13,PW*0.023);
+    players.forEach(p=>{tx.save();tx.beginPath();tx.arc(p.x+1,p.y+1,pr,0,Math.PI*2);tx.fillStyle='rgba(0,0,0,0.12)';tx.fill();tx.beginPath();tx.arc(p.x,p.y,pr,0,Math.PI*2);tx.fillStyle=PROTECTED.includes(p.customLbl||p.lbl)?'#fbbf24':'#e8ff3b';tx.fill();tx.strokeStyle='rgba(0,0,0,0.25)';tx.lineWidth=1;tx.stroke();const lbl=(p.customLbl||p.lbl).substring(0,4);tx.fillStyle='#000';tx.font=`700 ${Math.max(7,pr*0.65)}px 'DM Sans',sans-serif`;tx.textAlign='center';tx.textBaseline='middle';tx.fillText(lbl,p.x,p.y+0.5);tx.restore();});
+
+    const img=tc.toDataURL('image/png',0.92);
+    ({W,H,YD,LOS,players,routes}=sv); redraw();
+
+    const pg=document.createElement('div'); pg.className='pp';
+    pg.innerHTML=`<div class="pphead"><div class="pptitle">#${play.num||i+1} — ${play.name}</div><div class="ppmeta">FFA Playmaker · ${teamName}${play.savedBy?' · '+play.savedBy:''}<br>Play ${i+1}/${playbook.length}</div></div><img class="ppimg" src="${img}" alt="${play.name}">`;
+    stage.appendChild(pg);
+  });
+  window.print();
+};
+</script>
+</body>
+</html>
