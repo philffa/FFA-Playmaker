@@ -503,7 +503,7 @@ canvas#field {
         <button class="route-btn" data-route="slant">Slant</button>
         <button class="route-btn" data-route="curl">Curl</button>
         <button class="route-btn" data-route="out">Out</button>
-        <button class="route-btn" data-route="in">In / Dig</button>
+        <button class="route-btn" data-route="in">In</button>
         <button class="route-btn" data-route="corner">Corner</button>
         <button class="route-btn" data-route="post">Post</button>
         <button class="route-btn" data-route="cross">Cross</button>
@@ -1117,7 +1117,7 @@ function applyPresetRoute(type) {
       pts = [{x:sx,y:sy},{x:sx,y:sy-6},{x:sx+d*1,y:sy-4}]; break;
     case 'out':
       // Run up then break hard toward sideline (+d = outward)
-      pts = [{x:sx,y:sy},{x:sx,y:sy-4},{x:sx+d*4,y:sy-4}]; break;
+      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*5,y:sy-5}]; break;
     case 'in':
       // Run up then break hard toward centre (-d = inward)
       pts = [{x:sx,y:sy},{x:sx,y:sy-4},{x:sx-d*5,y:sy-4}]; break;
