@@ -1,5 +1,5 @@
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCzvBIS73Fno-7pa09O9Et_XR2pyuUD0zw",
   authDomain: "ffa-playmaker.firebaseapp.com",
   databaseURL: "https://ffa-playmaker-default-rtdb.asia-southeast1.firebasedatabase.app",
