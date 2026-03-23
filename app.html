@@ -1115,8 +1115,7 @@ function applyPresetRoute(type) {
       pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*6,y:sy-4}]; break;
     case 'whip':
       // Few steps of the slant, then reverse towards sideline (d = outward)
-      pts = [{x:sx,y:sy},{x:sx,y:sy-3},x:sx-d*4,y:sy-4},x:sx+d,y:sy-4}];break;
-    case 'curl':
+pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*4,y:sy-4},{x:sx+d*1,y:sy-6}]; break;    case 'curl':
       // Run up then curl back toward QB, slight outward drift
       pts = [{x:sx,y:sy},{x:sx,y:sy-6},{x:sx+d*1,y:sy-4}]; break;
     case 'out':
