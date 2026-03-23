@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlagBook — Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0e0e0e;--sur:#161616;--sur2:#1e1e1e;--bdr:#272727;--bdr2:#363636;--txt:#ebebeb;--mut:#666;--acc:#e8ff3b;--acc2:#c8e000;--red:#ff4545;}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;}
+.card{position:relative;width:100%;max-width:440px;padding:40px;background:var(--sur);border:1px solid var(--bdr);border-radius:14px;margin:24px 16px;}
+.logo{font-family:'Bebas Neue',cursive;font-size:30px;letter-spacing:3px;color:var(--acc);margin-bottom:2px;}
+.logo span{color:var(--txt);}
+.tagline{font-size:12px;color:var(--mut);margin-bottom:28px;}
+.sh{font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:2px;color:var(--mut);margin:18px 0 10px;}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;}
+.field label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--mut);}
+.field input{background:var(--sur2);border:1px solid var(--bdr2);border-radius:7px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;padding:11px 13px;outline:none;transition:border-color .2s;}
+.field input:focus{border-color:var(--acc);}
+.field input::placeholder{color:#3a3a3a;}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;}
+.ttile{padding:11px 10px;background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:9px;user-select:none;}
+.ttile:hover{border-color:var(--bdr2);background:#252525;}
+.ttile.sel{border-color:var(--acc);background:rgba(232,255,59,0.06);}
+.tbadge{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:11px;flex-shrink:0;background:var(--sur);border:1px solid var(--bdr2);color:var(--mut);transition:all .15s;}
+.ttile.sel .tbadge{background:var(--acc);color:#0e0e0e;border-color:var(--acc);}
+.tname{font-size:13px;font-weight:600;}
+.btn{width:100%;padding:12px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;background:var(--acc);color:#0e0e0e;border:none;border-radius:7px;cursor:pointer;transition:background .15s;margin-top:4px;}
+.btn:hover{background:var(--acc2);}
+.btn:disabled{background:#2a2a2a;color:#444;cursor:not-allowed;}
+.err{display:none;margin-top:12px;padding:10px 13px;background:rgba(255,69,69,0.08);border:1px solid rgba(255,69,69,0.2);border-radius:6px;font-size:12px;color:#ff7070;}
+.success{display:none;text-align:center;padding:8px 0;}
+.sicon{font-size:44px;margin-bottom:16px;}
+.success h2{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--acc);margin-bottom:10px;}
+.success p{font-size:13px;color:var(--mut);line-height:1.7;}
+.success a{color:var(--acc);text-decoration:none;}
+.foot{margin-top:20px;text-align:center;font-size:12px;color:var(--mut);}
+.foot a{color:var(--acc);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="fv">
+    <div class="logo">FLAG<span>BOOK</span></div>
+    <div class="tagline">Create your account to access your team's playbook.</div>
+
+    <div class="sh">Your details</div>
+    <div class="field"><label>Full name</label><input id="inp-name" type="text" placeholder="e.g. Jordan Smith" autocomplete="name"></div>
+    <div class="field"><label>Email</label><input id="inp-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+    <div class="field"><label>Password (min 8 characters)</label><input id="inp-pw" type="password" placeholder="Choose a strong password" autocomplete="new-password"></div>
+
+    <div class="sh">Your team</div>
+    <div class="team-grid" id="team-grid"></div>
+
+    <button class="btn" id="btn" onclick="doRegister()">Create Account →</button>
+    <div class="err" id="err"></div>
+    <div class="foot">Already have an account? <a href="index.html">Sign in</a></div>
+  </div>
+
+  <div class="success" id="sv">
+    <div class="sicon">🏈</div>
+    <h2>You're registered!</h2>
+    <p>
+      Your account is <strong style="color:var(--txt)">pending admin approval</strong> for the shared playbook.<br><br>
+      In the meantime, <strong style="color:var(--txt)">you can already start building plays</strong> — your work is saved locally and will sync to your team once approved.<br><br>
+      <a href="playbook.html">Go to the playbook →</a>
+    </p>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }                         from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
+import { getDatabase, ref, set }                 from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js';
+
+const FIREBASE_CONFIG = {
+  apiKey:"AIzaSyCzvBIS73Fno-7pa09O9Et_XR2pyuUD0zw",
+  authDomain:"ffa-playmaker.firebaseapp.com",
+  databaseURL:"https://ffa-playmaker-default-rtdb.firebaseio.com",
+  projectId:"ffa-playmaker",
+  storageBucket:"ffa-playmaker.firebasestorage.app",
+  messagingSenderId:"933713794922",
+  appId:"1:933713794922:web:72fec8fa4cf21a57173713"
+};
+
+// ── TEAMS — edit to match your league ────────────────────────────
+const TEAMS = [
+  { id:'mens',   name:"Men's Division",  initials:'M' },
+  { id:'womens', name:"Women's Division", initials:'W' },
+];
+// ─────────────────────────────────────────────────────────────────
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getDatabase(app);
+let selectedTeam = null;
+
+// Build team tiles
+const grid = document.getElementById('team-grid');
+TEAMS.forEach(t => {
+  const tile = document.createElement('div');
+  tile.className='ttile'; tile.dataset.id=t.id;
+  tile.innerHTML=`<div class="tbadge">${t.initials}</div><div class="tname">${t.name}</div>`;
+  tile.addEventListener('click',()=>{
+    selectedTeam=t.id;
+    document.querySelectorAll('.ttile').forEach(x=>x.classList.toggle('sel',x.dataset.id===t.id));
+    document.getElementById('err').style.display='none';
+  });
+  grid.appendChild(tile);
+});
+if(TEAMS.length===1){ selectedTeam=TEAMS[0].id; grid.firstChild.classList.add('sel'); }
+
+window.doRegister = async function(){
+  const name  = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const pw    = document.getElementById('inp-pw').value;
+  const err   = document.getElementById('err');
+  const btn   = document.getElementById('btn');
+  err.style.display='none';
+
+  if(!name)         { showErr('Please enter your full name.'); return; }
+  if(!email)        { showErr('Please enter your email.'); return; }
+  if(pw.length < 8) { showErr('Password must be at least 8 characters.'); return; }
+  if(!selectedTeam) { showErr('Please select your team.'); return; }
+
+  function showErr(msg){ err.textContent=msg; err.style.display='block'; }
+
+  btn.disabled=true; btn.textContent='Creating account…';
+  try{
+    const cred = await createUserWithEmailAndPassword(auth,email,pw);
+    await updateProfile(cred.user,{displayName:name});
+    const team = TEAMS.find(t=>t.id===selectedTeam);
+
+    // User profile in DB
+    await set(ref(db,'flagbook/users/'+cred.user.uid),{
+      uid:          cred.user.uid,
+      name,
+      email,
+      teamId:       team.id,
+      teamName:     team.name,
+      approved:     false,
+      admin:        false,
+      registeredAt: Date.now(),
+    });
+
+    // Pending queue for admin review
+    await set(ref(db,'flagbook/pending/'+cred.user.uid),{
+      uid:cred.user.uid, name, email,
+      teamId:team.id, teamName:team.name,
+      registeredAt:Date.now(),
+    });
+
+    document.getElementById('fv').style.display='none';
+    document.getElementById('sv').style.display='block';
+
+  }catch(e){
+    const msgs={'auth/email-already-in-use':'An account with that email already exists.','auth/invalid-email':'Invalid email.','auth/weak-password':'Password too weak — use 8+ characters.'};
+    showErr(msgs[e.code]||'Registration failed: '+e.message);
+    btn.disabled=false; btn.textContent='Create Account →';
+  }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlagBook — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0e0e0e;--sur:#161616;--sur2:#1e1e1e;--bdr:#272727;--bdr2:#363636;--txt:#ebebeb;--mut:#666;--acc:#e8ff3b;--acc2:#c8e000;--red:#ff4545;}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;}
+.card{position:relative;width:100%;max-width:400px;padding:40px;background:var(--sur);border:1px solid var(--bdr);border-radius:14px;margin:24px 16px;}
+.logo{font-family:'Bebas Neue',cursive;font-size:30px;letter-spacing:3px;color:var(--acc);margin-bottom:2px;}
+.logo span{color:var(--txt);}
+.tagline{font-size:12px;color:var(--mut);letter-spacing:.5px;margin-bottom:32px;}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:16px;}
+.field label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--mut);}
+.field input{background:var(--sur2);border:1px solid var(--bdr2);border-radius:7px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;padding:11px 13px;outline:none;transition:border-color .2s;}
+.field input:focus{border-color:var(--acc);}
+.field input::placeholder{color:#3a3a3a;}
+.btn{width:100%;padding:12px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;background:var(--acc);color:#0e0e0e;border:none;border-radius:7px;cursor:pointer;transition:background .15s;margin-top:4px;}
+.btn:hover{background:var(--acc2);}
+.btn:disabled{background:#2a2a2a;color:#444;cursor:not-allowed;}
+.err{display:none;margin-top:12px;padding:10px 13px;background:rgba(255,69,69,0.08);border:1px solid rgba(255,69,69,0.2);border-radius:6px;font-size:12px;color:#ff7070;}
+.notice{display:none;margin-top:12px;padding:10px 13px;background:rgba(232,255,59,0.06);border:1px solid rgba(232,255,59,0.2);border-radius:6px;font-size:12px;color:#c8e000;line-height:1.5;}
+.foot{margin-top:24px;text-align:center;font-size:12px;color:var(--mut);}
+.foot a{color:var(--acc);text-decoration:none;}
+.foot a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">FLAG<span>BOOK</span></div>
+  <div class="tagline">IFAF 5v5 · Team Playbook System</div>
+  <div class="field">
+    <label>Email</label>
+    <input id="inp-email" type="email" placeholder="you@example.com" autocomplete="email">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input id="inp-pw" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+  <button class="btn" id="btn" onclick="doLogin()">Sign In →</button>
+  <div class="err" id="err"></div>
+  <div class="notice" id="notice"></div>
+  <div class="foot">No account? <a href="register.html">Register here</a></div>
+</div>
+
+<script type="module">
+import { initializeApp }                  from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
+import { getDatabase, ref, get }          from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js';
+
+const FIREBASE_CONFIG = {
+  apiKey:"AIzaSyCzvBIS73Fno-7pa09O9Et_XR2pyuUD0zw",
+  authDomain:"ffa-playmaker.firebaseapp.com",
+  databaseURL:"https://ffa-playmaker-default-rtdb.firebaseio.com",
+  projectId:"ffa-playmaker",
+  storageBucket:"ffa-playmaker.firebasestorage.app",
+  messagingSenderId:"933713794922",
+  appId:"1:933713794922:web:72fec8fa4cf21a57173713"
+};
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getDatabase(app);
+
+// If already signed in redirect straight to playbook (works for both pending and approved)
+onAuthStateChanged(auth, async user => {
+  if(!user) return;
+  const snap = await get(ref(db,'flagbook/users/'+user.uid)).catch(()=>null);
+  if(snap && snap.val()) window.location.href = 'playbook.html';
+});
+
+window.doLogin = async function(){
+  const email = document.getElementById('inp-email').value.trim();
+  const pw    = document.getElementById('inp-pw').value;
+  const err   = document.getElementById('err');
+  const notice= document.getElementById('notice');
+  const btn   = document.getElementById('btn');
+  err.style.display='none'; notice.style.display='none';
+
+  if(!email||!pw){ err.textContent='Please enter your email and password.'; err.style.display='block'; return; }
+
+  btn.disabled=true; btn.textContent='Signing in…';
+  try{
+    const cred = await signInWithEmailAndPassword(auth,email,pw);
+    const snap = await get(ref(db,'flagbook/users/'+cred.user.uid));
+    const data = snap.val();
+    if(!data){ err.textContent='Account data not found. Please re-register.'; err.style.display='block'; return; }
+    // Both pending and approved users go to playbook — playbook handles the difference
+    window.location.href = 'playbook.html';
+  }catch(e){
+    const msgs={'auth/invalid-credential':'Incorrect email or password.','auth/user-not-found':'No account found.','auth/wrong-password':'Incorrect password.','auth/too-many-requests':'Too many attempts — try later.','auth/invalid-email':'Invalid email.'};
+    err.textContent = msgs[e.code]||'Sign in failed: '+e.message;
+    err.style.display='block';
+  }finally{
+    btn.disabled=false; btn.textContent='Sign In →';
+  }
+};
+</script>
+</body>
+</html>
