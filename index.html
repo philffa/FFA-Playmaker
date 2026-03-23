@@ -44,7 +44,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <button class="btn" id="btn" onclick="doLogin()">Sign In →</button>
   <div class="err" id="err"></div>
   <div class="notice" id="notice"></div>
-  <div class="foot">No account? <a href="register.html">Register here</a></div>
+  <div class="foot">No account? <a href="register(2).html">Register here</a></div>
 </div>
 
 <script type="module">
@@ -70,7 +70,7 @@ const db   = getDatabase(app);
 onAuthStateChanged(auth, async user => {
   if(!user) return;
   const snap = await get(ref(db,'flagbook/users/'+user.uid)).catch(()=>null);
-  if(snap && snap.val()) window.location.href = 'playbook.html';
+  if(snap && snap.val()) window.location.href = 'playbook(2).html';
 });
 
 window.doLogin = async function(){
