@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ── Reset & Variables ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --turf:       #1a2e1a;
@@ -34,8 +33,6 @@ body {
   flex-direction: column;
   overflow: hidden;
 }
-
-/* ── Nav ────────────────────────────────────────────────────────────────── */
 nav {
   height: var(--nav-h);
   background: var(--panel);
@@ -99,16 +96,9 @@ nav {
   transition: all 0.15s;
 }
 .btn-signout:hover { border-color: var(--error); color: var(--error); }
-
-/* ── Pages ──────────────────────────────────────────────────────────────── */
 .page { display: none; flex: 1; overflow: hidden; }
 .page.active { display: flex; }
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   PLAY DESIGNER
-══════════════════════════════════════════════════════════════════════════ */
 #page-designer { flex-direction: row; }
-
 .designer-sidebar {
   width: 240px;
   flex-shrink: 0;
@@ -143,12 +133,7 @@ nav {
 }
 .sidebar-section input[type="text"]:focus,
 .sidebar-section textarea:focus { border-color: var(--lime); }
-
-.route-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-}
+.route-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
 .route-btn {
   padding: 7px 4px;
   background: var(--turf2);
@@ -164,13 +149,7 @@ nav {
 }
 .route-btn:hover  { border-color: var(--lime); color: var(--lime); }
 .route-btn.active { background: var(--lime); color: var(--panel); border-color: var(--lime); }
-
-.selected-player-label {
-  font-size: 12px;
-  color: var(--muted);
-  font-style: italic;
-}
-
+.selected-player-label { font-size: 12px; color: var(--muted); font-style: italic; }
 .color-row { display: flex; gap: 6px; flex-wrap: wrap; }
 .color-swatch {
   width: 22px; height: 22px;
@@ -180,8 +159,6 @@ nav {
   transition: border-color 0.12s;
 }
 .color-swatch.active { border-color: #111; }
-
-/* Draw mode toggle */
 .mode-toggle {
   display: flex;
   gap: 4px;
@@ -205,13 +182,7 @@ nav {
 }
 .mode-btn.active { background: var(--lime); color: var(--panel); }
 .mode-btn.motion-active { background: #e07b00; color: #fff; }
-
-/* Snap receiver player buttons */
-.snap-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-}
+.snap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .snap-btn {
   padding: 7px 3px;
   background: var(--turf2);
@@ -227,8 +198,6 @@ nav {
 }
 .snap-btn:hover  { border-color: #f0c040; color: #f0c040; }
 .snap-btn.active { background: #f0c040; color: #111; border-color: #f0c040; }
-
-/* Route end direction pad */
 .dir-pad-wrap { display: none; }
 .dir-pad-wrap.visible { display: block; }
 .dir-pad {
@@ -252,16 +221,9 @@ nav {
 .dir-btn:hover  { border-color: var(--lime); color: var(--lime); }
 .dir-btn.active { background: var(--lime); color: var(--panel); border-color: var(--lime); }
 .dir-btn.center { background: transparent; border-color: transparent; cursor: default; font-size: 10px; color: var(--muted); }
-.break-len-row {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 11px; color: var(--muted);
-}
-.break-len-row input[type=range] {
-  flex: 1; accent-color: var(--lime);
-  background: transparent; border: none; padding: 0;
-}
+.break-len-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.break-len-row input[type=range] { flex: 1; accent-color: var(--lime); background: transparent; border: none; padding: 0; }
 .break-len-val { color: var(--white); font-weight: 600; min-width: 28px; }
-
 .btn-sidebar {
   width: 100%;
   padding: 9px;
@@ -277,13 +239,8 @@ nav {
   text-align: center;
 }
 .btn-sidebar:hover { border-color: var(--lime); color: var(--lime); }
-.btn-sidebar.primary {
-  background: var(--lime);
-  color: var(--panel);
-  border-color: var(--lime);
-}
+.btn-sidebar.primary { background: var(--lime); color: var(--panel); border-color: var(--lime); }
 .btn-sidebar.primary:hover { background: var(--lime2); }
-
 .designer-canvas-wrap {
   flex: 1;
   display: flex;
@@ -293,31 +250,10 @@ nav {
   overflow: hidden;
   position: relative;
 }
-
-canvas#field {
-  display: block;
-  cursor: crosshair;
-  touch-action: none;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   MY PLAYS
-══════════════════════════════════════════════════════════════════════════ */
-#page-plays {
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 28px 32px;
-  gap: 24px;
-}
-.page-header {
-  display: flex; align-items: center; justify-content: space-between;
-}
-.page-header h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  letter-spacing: 1px;
-  color: var(--lime);
-}
+canvas#field { display: block; cursor: crosshair; touch-action: none; }
+#page-plays { flex-direction: column; overflow-y: auto; padding: 28px 32px; gap: 24px; }
+.page-header { display: flex; align-items: center; justify-content: space-between; }
+.page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 1px; color: var(--lime); }
 .btn-action {
   padding: 10px 20px;
   background: var(--lime);
@@ -331,12 +267,7 @@ canvas#field {
   transition: background 0.13s;
 }
 .btn-action:hover { background: var(--lime2); }
-
-.plays-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
-}
+.plays-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
 .play-card {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -364,37 +295,13 @@ canvas#field {
 }
 .btn-icon:hover { border-color: var(--lime); color: var(--lime); }
 .btn-icon.danger:hover { border-color: var(--error); color: var(--error); }
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--muted);
-}
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-state h2 { font-size: 20px; color: var(--white); margin-bottom: 8px; }
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   TEAM HUB
-══════════════════════════════════════════════════════════════════════════ */
-#page-team {
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 28px 32px;
-  gap: 24px;
-}
+#page-team { flex-direction: column; overflow-y: auto; padding: 28px 32px; gap: 24px; }
 .team-layout { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
 .team-card { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; margin-bottom: 24px; }
-.team-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-}
-.team-panel h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  color: var(--lime);
-  margin-bottom: 16px;
-  letter-spacing: 0.5px;
-}
+.team-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.team-panel h2 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--lime); margin-bottom: 16px; letter-spacing: 0.5px; }
 .team-panel p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
 .form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .form-row label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; }
@@ -410,7 +317,6 @@ canvas#field {
   transition: border-color 0.13s;
 }
 .form-row input:focus { border-color: var(--lime); }
-
 .member-list { display: flex; flex-direction: column; gap: 8px; }
 .member-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -431,38 +337,13 @@ canvas#field {
   font-size: 13px;
 }
 .request-btns { display: flex; gap: 6px; }
-.btn-approve {
-  padding: 4px 10px;
-  background: var(--lime);
-  border: none;
-  border-radius: 6px;
-  color: var(--panel);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.btn-deny {
-  padding: 4px 10px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--muted);
-  font-size: 12px;
-  cursor: pointer;
-}
+.btn-approve { padding: 4px 10px; background: var(--lime); border: none; border-radius: 6px; color: var(--panel); font-size: 12px; font-weight: 700; cursor: pointer; }
+.btn-deny { padding: 4px 10px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 12px; cursor: pointer; }
 .btn-deny:hover { border-color: var(--error); color: var(--error); }
-
-.status-pill {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 99px;
-  font-size: 11px;
-  font-weight: 600;
-}
+.status-pill { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
 .pill-captain  { background: rgba(184,255,71,0.15); color: var(--lime); }
 .pill-member   { background: rgba(255,255,255,0.07); color: var(--muted); }
 .pill-pending  { background: rgba(255,179,71,0.15); color: var(--warning); }
-
 .toast {
   position: fixed;
   bottom: 24px; right: 24px;
@@ -480,15 +361,10 @@ canvas#field {
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.error { border-color: var(--error); }
-
-/* ── Print styles ─────────────────────────────────────────────────────── */
 @media print {
   nav, .designer-sidebar, #page-plays, #page-team, .toast { display: none !important; }
   body { background: white; }
-  #print-area {
-    display: block !important;
-    padding: 20px;
-  }
+  #print-area { display: block !important; padding: 20px; }
   #print-area canvas { width: 100%; max-width: 700px; }
 }
 #print-area { display: none; }
@@ -496,23 +372,19 @@ canvas#field {
 </head>
 <body>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
-
-<!-- Print area (hidden, shown only on print) -->
 <div id="print-area">
   <h2 id="print-title" style="font-family:sans-serif;margin-bottom:8px;"></h2>
   <p id="print-notes" style="font-family:sans-serif;font-size:13px;color:#555;margin-bottom:12px;"></p>
   <canvas id="print-canvas"></canvas>
 </div>
 
-<!-- Nav -->
 <nav>
   <div class="nav-logo">FFA Playmaker</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('designer')" id="tab-designer">✏️ Designer</button>
-    <button class="nav-tab" onclick="showPage('plays')"    id="tab-plays">📋 My Plays</button>
-    <button class="nav-tab" onclick="showPage('team')"     id="tab-team">
+    <button class="nav-tab" onclick="showPage('plays')" id="tab-plays">📋 My Plays</button>
+    <button class="nav-tab" onclick="showPage('team')" id="tab-team">
       🏟️ Team Hub
       <span class="badge" id="team-badge">0</span>
     </button>
@@ -523,9 +395,7 @@ canvas#field {
   </div>
 </nav>
 
-<!-- ═══════════════ PLAY DESIGNER ═══════════════ -->
 <div class="page active" id="page-designer">
-
   <div class="designer-sidebar">
 
     <div class="sidebar-section">
@@ -541,9 +411,7 @@ canvas#field {
     <div class="sidebar-section">
       <h3>Snap Receiver</h3>
       <div style="font-size:11px;color:var(--muted);margin-bottom:7px;">★ marks who gets the snap (not the centre)</div>
-      <div class="snap-grid" id="snap-grid">
-        <!-- populated by JS -->
-      </div>
+      <div class="snap-grid" id="snap-grid"></div>
     </div>
 
     <div class="sidebar-section">
@@ -582,7 +450,12 @@ canvas#field {
 
       <div class="sidebar-section">
         <h3>Route Style</h3>
-        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--white);cursor:pointer;font-weight:normal;text-transform:none;letter-spacing:0">
+        <!-- CHANGE 1: Smooth curves is opt-in, unchecked by default -->
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--white);cursor:pointer;margin-bottom:6px">
+          <input type="checkbox" id="smooth-route-toggle" style="accent-color:var(--lime);width:14px;height:14px;">
+          Smooth curves
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--white);cursor:pointer">
           <input type="checkbox" id="option-route-toggle" style="accent-color:var(--lime);width:14px;height:14px;">
           Option route (dotted line)
         </label>
@@ -649,10 +522,8 @@ canvas#field {
   <div class="designer-canvas-wrap">
     <canvas id="field"></canvas>
   </div>
-
 </div>
 
-<!-- ═══════════════ MY PLAYS ═══════════════ -->
 <div class="page" id="page-plays">
   <div class="page-header">
     <h1>My Plays</h1>
@@ -666,14 +537,11 @@ canvas#field {
   </div>
 </div>
 
-<!-- ═══════════════ TEAM HUB ═══════════════ -->
 <div class="page" id="page-team">
   <div class="page-header">
     <h1 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;color:var(--lime)">Team Hub</h1>
   </div>
-
   <div class="team-layout">
-    <!-- Left column: create / join (always visible) + pending requests -->
     <div>
       <div class="team-panel" style="margin-bottom:16px">
         <h2>Create a Team</h2>
@@ -688,11 +556,8 @@ canvas#field {
         <button class="btn-sidebar primary" onclick="requestJoin()">Send Request</button>
         <div id="join-status" style="font-size:13px;margin-top:10px;color:var(--muted)"></div>
       </div>
-      <!-- Pending requests shown here -->
       <div id="pending-section"></div>
     </div>
-
-    <!-- Right column: one card per team the user is on -->
     <div id="teams-container">
       <div class="empty-state" id="teams-empty" style="display:none">
         <h2>Not on any teams yet</h2>
@@ -702,7 +567,6 @@ canvas#field {
   </div>
 </div>
 
-<!-- Team picker modal for "Save to Team" -->
 <div id="team-picker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center;">
   <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px;min-width:300px;max-width:420px;width:90%">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--lime);margin-bottom:16px">Save to Team Playbook</div>
@@ -712,7 +576,6 @@ canvas#field {
   </div>
 </div>
 
-<!-- Firebase -->
 <script src="firebase-config.js"></script>
 <script type="module">
 import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -723,16 +586,13 @@ import {
   query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ══════════════════════════════════════════════════════════
-   INIT
-══════════════════════════════════════════════════════════ */
 const app  = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
 let currentUser   = null;
 let userDoc       = null;
-let currentPlayId = null;   // the play being edited
+let currentPlayId = null;
 let unsubPlays    = null;
 
 onAuthStateChanged(auth, async user => {
@@ -740,12 +600,7 @@ onAuthStateChanged(auth, async user => {
   currentUser = user;
   document.getElementById('user-name-display').textContent = user.displayName || user.email;
   showPage('designer');
-  try {
-    await refreshUserDoc();
-  } catch(e) {
-    console.warn('Could not load user document — Firestore rules may not be deployed yet.', e);
-    userDoc = {};
-  }
+  try { await refreshUserDoc(); } catch(e) { console.warn('Could not load user doc', e); userDoc = {}; }
   try { loadMyPlays(); } catch(e) { console.warn('loadMyPlays error', e); }
   try { initTeamSection(); } catch(e) { console.warn('initTeamSection error', e); }
 });
@@ -757,9 +612,6 @@ async function refreshUserDoc() {
 
 window.doSignOut = async () => { await signOut(auth); window.location.href = 'index.html'; };
 
-/* ══════════════════════════════════════════════════════════
-   NAVIGATION
-══════════════════════════════════════════════════════════ */
 window.showPage = (name) => {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -768,9 +620,6 @@ window.showPage = (name) => {
   if (name === 'designer') requestAnimationFrame(() => resizeCanvas());
 };
 
-/* ══════════════════════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════════════════════ */
 function toast(msg, type='ok') {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -785,42 +634,37 @@ function toast(msg, type='ok') {
 const canvas = document.getElementById('field');
 const ctx    = canvas.getContext('2d');
 
-// Field dimensions (yards) — scrimmage area only
-const FIELD_YARDS_W = 30;   // 15y each side of centre
-const FIELD_YARDS_H = 25;   // 7y behind LOS + 18y ahead
+const FIELD_YARDS_W = 30;
+const FIELD_YARDS_H = 25;
 
-let PX = 20;  // pixels per yard, recalculated on resize
-let FIELD_W, FIELD_H;
-let LOS_Y;    // y pixel of line of scrimmage
+let PX = 20;
+let FIELD_W, FIELD_H, LOS_Y;
 
-// Players
-const PLAYER_ROLES = ['C','SL','WR-L','WR-R','QB'];
 let players = [];
-let routes  = {};   // playerId -> [{x,y}] in yard coords
-
+let routes  = {};
 let selectedPlayerId = null;
 let routeColor = '#111111';
-let drawingMode = false;  // true when clicking to add waypoints
+let drawingMode = false;
 let draggingPlayer = null;
-let draggingWaypoint = null; // {pid, idx}
+let draggingWaypoint = null;
 let unsavedChanges = false;
-let currentBreakAngle = null;  // degrees, null = no override
-let snapReceiverId = 'QB';     // who receives the snap
-let motions = {};              // playerId -> [{x,y}] zig-zag motion paths
-let currentDrawMode = 'route'; // 'route' | 'motion'
-let isOptionRoute = false;     // dotted line style for selected player's route
+let currentBreakAngle = null;
+let snapReceiverId = 'QB';
+let motions = {};
+let currentDrawMode = 'route';
+let isOptionRoute = false;
+// CHANGE 1: smooth curves defaults OFF — user opts in via checkbox
+let isSmoothRoutes = false;
 
 function initPlayers() {
-  // y coords: 0 = top, FIELD_YARDS_H = bottom
-  // LOS is 10y from the bottom = FIELD_YARDS_H - 10 = 15y from top
-  const cx   = FIELD_YARDS_W / 2;  // 15
-  const losY = FIELD_YARDS_H - 10; // 15 — matches LOS_Y pixel calc
+  const cx   = FIELD_YARDS_W / 2;
+  const losY = FIELD_YARDS_H - 10;
   players = [
-    { id:'WR-L', label:'WR', x: 3,                  y: losY,     color:'#e05c00' }, // 3y from left sideline
-    { id:'SL',   label:'SL', x: (3 + cx) / 2,       y: losY,     color:'#9b30ff' }, // halfway between WR-L and C
-    { id:'C',    label:'C',  x: cx,                  y: losY,     color:'#0077cc' }, // centre
-    { id:'WR-R', label:'WR', x: FIELD_YARDS_W - 3,  y: losY,     color:'#cc0033' }, // 3y from right sideline
-    { id:'QB',   label:'QB', x: cx,                  y: losY + 7, color:'#007a3d' }, // green
+    { id:'WR-L', label:'WR', x: 3,                  y: losY,     color:'#e05c00' },
+    { id:'SL',   label:'SL', x: (3 + cx) / 2,       y: losY,     color:'#9b30ff' },
+    { id:'C',    label:'C',  x: cx,                  y: losY,     color:'#0077cc' },
+    { id:'WR-R', label:'WR', x: FIELD_YARDS_W - 3,  y: losY,     color:'#cc0033' },
+    { id:'QB',   label:'QB', x: cx,                  y: losY + 7, color:'#007a3d' },
   ];
   routes = {};
   motions = {};
@@ -835,7 +679,7 @@ function resizeCanvas() {
   PX = Math.max(14, Math.min(PX, 32));
   FIELD_W = PX * FIELD_YARDS_W;
   FIELD_H = PX * FIELD_YARDS_H;
-  LOS_Y   = FIELD_H - PX * 10;  // LOS is 10y from the bottom
+  LOS_Y   = FIELD_H - PX * 10;
   canvas.width  = FIELD_W;
   canvas.height = FIELD_H;
   render();
@@ -844,7 +688,6 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 setTimeout(resizeCanvas, 80);
 
-/* ─── Rendering ─────────────────────────────────────────────────────────── */
 function render() {
   ctx.clearRect(0,0,FIELD_W,FIELD_H);
   drawField();
@@ -854,19 +697,15 @@ function render() {
 }
 
 function drawField() {
-  // White turf background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, FIELD_W, FIELD_H);
 
-  // Yard lines — anchored to bottom, bold every 5y
   for (let dist = 0; dist <= FIELD_YARDS_H; dist++) {
-    const py      = FIELD_H - dist * PX;
-    const isFive  = dist % 5 === 0;
+    const py     = FIELD_H - dist * PX;
+    const isFive = dist % 5 === 0;
     ctx.strokeStyle = isFive ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.07)';
     ctx.lineWidth   = isFive ? 1.5 : 0.5;
     ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(FIELD_W, py); ctx.stroke();
-
-    // Yard number labels at 5y intervals
     if (isFive && dist > 0 && dist < FIELD_YARDS_H) {
       const yardsFromLos = dist - 10;
       if (yardsFromLos !== 0) {
@@ -878,48 +717,37 @@ function drawField() {
       }
     }
   }
-
-  // Vertical hash marks every 5y
   for (let x = 0; x <= FIELD_YARDS_W; x += 5) {
     const px = x * PX;
     ctx.strokeStyle = 'rgba(0,0,0,0.08)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, FIELD_H); ctx.stroke();
   }
-
-  // LOS — bold dashed line
   ctx.strokeStyle = 'rgba(0, 100, 200, 0.7)';
   ctx.lineWidth = 2.5;
   ctx.setLineDash([6, 4]);
   ctx.beginPath(); ctx.moveTo(0, LOS_Y); ctx.lineTo(FIELD_W, LOS_Y); ctx.stroke();
   ctx.setLineDash([]);
-
-  // LOS label
   ctx.fillStyle = 'rgba(0, 100, 200, 0.8)';
   ctx.font = `bold ${Math.max(9, PX * 0.5)}px DM Sans`;
   ctx.textAlign = 'right';
   ctx.fillText('LOS', FIELD_W - 4, LOS_Y - 4);
-
-  // Attack direction label
   ctx.fillStyle = 'rgba(0,0,0,0.12)';
   ctx.font = `bold ${Math.max(10, PX * 0.6)}px Bebas Neue`;
   ctx.textAlign = 'center';
   ctx.fillText('ATTACK ↑', FIELD_W / 2, PX * 1.4);
 }
 
-/* ─── Zig-zag motion renderer ───────────────────────────────────────────── */
 function drawMotions() {
   for (const pid of Object.keys(motions)) {
     const pts = motions[pid];
     if (!pts || pts.length < 2) continue;
-    const color = '#c45c00';  // amber — distinct from routes
+    const color = '#c45c00';
     ctx.strokeStyle = color;
     ctx.lineWidth   = 2.5;
     ctx.lineCap     = 'round';
     ctx.lineJoin    = 'round';
     ctx.setLineDash([]);
-
-    // Draw zig-zag between each pair of consecutive waypoints
     ctx.beginPath();
     ctx.moveTo(pts[0].x * PX, pts[0].y * PX);
     for (let i = 1; i < pts.length; i++) {
@@ -928,87 +756,73 @@ function drawMotions() {
       const dx = bx - ax, dy = by - ay;
       const len = Math.sqrt(dx*dx + dy*dy);
       if (len < 1) continue;
-      // Perpendicular unit vector
       const nx = -dy / len, ny = dx / len;
-      const amp = Math.min(PX * 0.4, 7);  // zig-zag amplitude in pixels
+      const amp  = Math.min(PX * 0.4, 7);
       const segs = Math.max(2, Math.round(len / (PX * 0.8)));
       for (let s = 1; s <= segs; s++) {
-        const t   = s / segs;
+        const t    = s / segs;
         const side = (s % 2 === 1) ? 1 : -1;
-        const mx  = ax + dx * t + nx * amp * side;
-        const my  = ay + dy * t + ny * amp * side;
-        ctx.lineTo(mx, my);
+        ctx.lineTo(ax + dx * t + nx * amp * side, ay + dy * t + ny * amp * side);
       }
       ctx.lineTo(bx, by);
     }
     ctx.stroke();
-
-    // Arrow at end
     const last = pts[pts.length-1], prev = pts[pts.length-2];
     drawArrow(prev.x*PX, prev.y*PX, last.x*PX, last.y*PX, color);
-
-    // "M" label at start
     ctx.fillStyle = color;
     ctx.font = `bold ${Math.max(8, PX * 0.45)}px DM Sans`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
     ctx.fillText('M', pts[0].x * PX, pts[0].y * PX - Math.max(10, PX * 0.55) - 2);
     ctx.textBaseline = 'alphabetic';
-    // No waypoint dots — keep the zig-zag clean
   }
 }
 
-/* ─── Smooth path helper ────────────────────────────────────────────────── */
-// Uses midpoint-quadratic Bezier technique: each interior waypoint becomes a
-// control point; the curve passes through the midpoints between waypoints,
-// producing natural smooth corners instead of sharp angles.
+/* ── Path helpers ─────────────────────────────────────────────────────── */
+// Smooth midpoint-Bezier (opt-in)
 function drawSmoothPath(context, pts, px) {
   context.beginPath();
   context.moveTo(pts[0].x * px, pts[0].y * px);
-  if (pts.length === 2) {
-    context.lineTo(pts[1].x * px, pts[1].y * px);
-    return;
-  }
+  if (pts.length === 2) { context.lineTo(pts[1].x * px, pts[1].y * px); return; }
   for (let i = 1; i < pts.length - 1; i++) {
     const mx = (pts[i].x + pts[i + 1].x) / 2 * px;
     const my = (pts[i].y + pts[i + 1].y) / 2 * px;
     context.quadraticCurveTo(pts[i].x * px, pts[i].y * px, mx, my);
   }
-  // Final segment goes straight to the last waypoint
   context.lineTo(pts[pts.length - 1].x * px, pts[pts.length - 1].y * px);
 }
 
-/* ─── Route renderer — smooth curves, no corner dots ────────────────────── */
+// Sharp straight-segment polyline (default)
+function drawSharpPath(context, pts, px) {
+  context.beginPath();
+  context.moveTo(pts[0].x * px, pts[0].y * px);
+  for (let i = 1; i < pts.length; i++) context.lineTo(pts[i].x * px, pts[i].y * px);
+}
+
+function drawRoutePath(context, pts, px) {
+  isSmoothRoutes ? drawSmoothPath(context, pts, px) : drawSharpPath(context, pts, px);
+}
+
 function drawRoutes() {
   for (const pid of Object.keys(routes)) {
     const pts = routes[pid];
     if (!pts || pts.length < 2) {
       if (pts && pts.length === 1) {
-        const p = pts[0];
         ctx.fillStyle = getRouteColor(pid);
-        ctx.beginPath();
-        ctx.arc(p.x*PX, p.y*PX, 3, 0, Math.PI*2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(pts[0].x*PX, pts[0].y*PX, 3, 0, Math.PI*2); ctx.fill();
       }
       continue;
     }
     const color = getRouteColor(pid);
-
-    // Primary route — smooth curved, solid
     ctx.strokeStyle = color;
     ctx.lineWidth   = 2.5;
     ctx.lineJoin    = 'round';
     ctx.lineCap     = 'round';
     ctx.setLineDash([]);
-    drawSmoothPath(ctx, pts, PX);
+    drawRoutePath(ctx, pts, PX);
     ctx.stroke();
+    drawArrow(pts[pts.length-2].x*PX, pts[pts.length-2].y*PX, pts[pts.length-1].x*PX, pts[pts.length-1].y*PX, color);
 
-    // Arrow at end — direction is always the last two waypoints (straight final seg)
-    const last = pts[pts.length-1];
-    const prev = pts[pts.length-2];
-    drawArrow(prev.x*PX, prev.y*PX, last.x*PX, last.y*PX, color);
-
-    // Option branch — smooth curved, dotted
     const optPts = routes[pid].optionWaypoints;
     if (optPts && optPts.length >= 2) {
       ctx.strokeStyle = color;
@@ -1016,15 +830,12 @@ function drawRoutes() {
       ctx.lineJoin    = 'round';
       ctx.lineCap     = 'round';
       ctx.setLineDash([5, 5]);
-      drawSmoothPath(ctx, optPts, PX);
+      drawRoutePath(ctx, optPts, PX);
       ctx.stroke();
       ctx.setLineDash([]);
-      const oLast = optPts[optPts.length-1];
-      const oPrev = optPts[optPts.length-2];
-      drawArrow(oPrev.x*PX, oPrev.y*PX, oLast.x*PX, oLast.y*PX, color);
+      drawArrow(optPts[optPts.length-2].x*PX, optPts[optPts.length-2].y*PX, optPts[optPts.length-1].x*PX, optPts[optPts.length-1].y*PX, color);
     }
     ctx.setLineDash([]);
-    // No waypoint dots — routes are clean
   }
 }
 
@@ -1047,6 +858,7 @@ function getRouteColor(pid) {
   return p ? p.color : '#111111';
 }
 
+/* ── Player drawing ───────────────────────────────────────────────────── */
 function drawPlayers() {
   for (const p of players) {
     const px  = p.x * PX;
@@ -1055,40 +867,41 @@ function drawPlayers() {
     const sel = p.id === selectedPlayerId;
     const isSnap = p.id === snapReceiverId;
 
-    // Glow for selected player
     ctx.shadowColor = sel ? p.color : 'rgba(0,0,0,0.2)';
     ctx.shadowBlur  = sel ? 12 : 4;
 
-    // Filled circle
-    ctx.fillStyle   = p.color;
-    ctx.strokeStyle = sel ? '#000' : 'rgba(0,0,0,0.35)';
-    ctx.lineWidth   = sel ? 2.5 : 1.5;
-    ctx.beginPath();
-    ctx.arc(px, py, r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+    if (isSnap) {
+      // CHANGE 2: render snap receiver AS a star — no circle, no floating star above
+      drawPlayerStar(px, py, r * 1.15, p.color, sel ? '#000' : 'rgba(0,0,0,0.4)', sel ? 2.5 : 1.5);
+    } else {
+      ctx.fillStyle   = p.color;
+      ctx.strokeStyle = sel ? '#000' : 'rgba(0,0,0,0.35)';
+      ctx.lineWidth   = sel ? 2.5 : 1.5;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
 
     ctx.shadowBlur = 0;
 
-    // Label
+    // Label — centred on the player position regardless of shape
     ctx.fillStyle    = '#ffffff';
     ctx.font         = `bold ${Math.max(8, PX * 0.42)}px DM Sans`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(p.label, px, py);
     ctx.textBaseline = 'alphabetic';
-
-    // ★ snap receiver — gold star above the circle
-    if (isSnap) {
-      const sr = r + 3;
-      drawStar(px, py - sr - 4, Math.max(5, PX * 0.3), '#f0c040', '#a07000');
-    }
   }
 }
 
-function drawStar(cx, cy, r, fill, stroke) {
+/**
+ * Draw a 5-pointed star centred at (cx, cy) with outer radius r.
+ * This IS the player token — the label is drawn on top by drawPlayers().
+ */
+function drawPlayerStar(cx, cy, r, fill, strokeColor, lineWidth) {
   const spikes = 5;
-  const inner  = r * 0.45;
+  const inner  = r * 0.42;
   ctx.beginPath();
   for (let i = 0; i < spikes * 2; i++) {
     const angle  = (i * Math.PI / spikes) - Math.PI / 2;
@@ -1099,13 +912,13 @@ function drawStar(cx, cy, r, fill, stroke) {
   }
   ctx.closePath();
   ctx.fillStyle   = fill;
-  ctx.strokeStyle = stroke;
-  ctx.lineWidth   = 1;
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth   = lineWidth;
   ctx.fill();
   ctx.stroke();
 }
 
-/* ─── Canvas interaction ────────────────────────────────────────────────── */
+/* ── Canvas interaction ───────────────────────────────────────────────── */
 function canvasPos(e) {
   const rect = canvas.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -1125,14 +938,11 @@ function hitPlayer(pos) {
 }
 
 function hitWaypoint(pos, pid) {
-  // Check motion waypoints first if in motion mode
-  const collection = currentDrawMode === 'motion' ? motions : routes;
-  const pts = collection[pid];
+  const col = currentDrawMode === 'motion' ? motions : routes;
+  const pts = col[pid];
   if (!pts) return -1;
   const r = 7 / PX;
-  for (let i = 0; i < pts.length; i++) {
-    if (dist(pos, pts[i]) < r) return i;
-  }
+  for (let i = 0; i < pts.length; i++) if (dist(pos, pts[i]) < r) return i;
   return -1;
 }
 
@@ -1148,31 +958,15 @@ canvas.addEventListener('touchend',   onUp);
 function onDown(e) {
   e.preventDefault();
   const pos = canvasPos(e);
-
-  // Check for waypoint drag first (if a player is selected)
   if (selectedPlayerId) {
     const wIdx = hitWaypoint(pos, selectedPlayerId);
-    if (wIdx >= 0) {
-      draggingWaypoint = { pid: selectedPlayerId, idx: wIdx };
-      return;
-    }
+    if (wIdx >= 0) { draggingWaypoint = { pid: selectedPlayerId, idx: wIdx }; return; }
   }
-
-  // Check for player hit
   const p = hitPlayer(pos);
-  if (p) {
-    selectPlayer(p.id);
-    draggingPlayer = p;
-    drawingMode = false;
-    return;
-  }
-
-  // Click empty space — add waypoint in current draw mode
+  if (p) { selectPlayer(p.id); draggingPlayer = p; drawingMode = false; return; }
   if (selectedPlayerId && drawingMode) {
-    currentDrawMode === 'motion' ? addMotionWaypoint(pos) : addWaypoint(pos);
-    return;
+    currentDrawMode === 'motion' ? addMotionWaypoint(pos) : addWaypoint(pos); return;
   }
-
   if (selectedPlayerId) {
     drawingMode = true;
     currentDrawMode === 'motion' ? addMotionWaypoint(pos) : addWaypoint(pos);
@@ -1185,34 +979,24 @@ function onMove(e) {
   if (draggingPlayer) {
     draggingPlayer.x = Math.max(0, Math.min(FIELD_YARDS_W, pos.x));
     draggingPlayer.y = Math.max(0, Math.min(FIELD_YARDS_H, pos.y));
-    if (routes[draggingPlayer.id] && routes[draggingPlayer.id].length > 0) {
-      routes[draggingPlayer.id][0] = { x: draggingPlayer.x, y: draggingPlayer.y };
-    }
-    if (motions[draggingPlayer.id] && motions[draggingPlayer.id].length > 0) {
-      motions[draggingPlayer.id][0] = { x: draggingPlayer.x, y: draggingPlayer.y };
-    }
-    unsavedChanges = true;
-    render();
+    if (routes[draggingPlayer.id]?.length > 0) routes[draggingPlayer.id][0] = { x: draggingPlayer.x, y: draggingPlayer.y };
+    if (motions[draggingPlayer.id]?.length > 0) motions[draggingPlayer.id][0] = { x: draggingPlayer.x, y: draggingPlayer.y };
+    unsavedChanges = true; render();
   }
   if (draggingWaypoint) {
-    const collection = currentDrawMode === 'motion' ? motions : routes;
+    const col = currentDrawMode === 'motion' ? motions : routes;
     const losYards = FIELD_YARDS_H - 10;
     const clampedY = currentDrawMode === 'motion'
-      ? Math.max(losYards, Math.min(FIELD_YARDS_H, pos.y))  // motion: behind LOS only
+      ? Math.max(losYards, Math.min(FIELD_YARDS_H, pos.y))
       : Math.max(0, Math.min(FIELD_YARDS_H, pos.y));
-    collection[draggingWaypoint.pid][draggingWaypoint.idx] = {
-      x: Math.max(0, Math.min(FIELD_YARDS_W, pos.x)),
-      y: clampedY
+    col[draggingWaypoint.pid][draggingWaypoint.idx] = {
+      x: Math.max(0, Math.min(FIELD_YARDS_W, pos.x)), y: clampedY
     };
-    unsavedChanges = true;
-    render();
+    unsavedChanges = true; render();
   }
 }
 
-function onUp() {
-  draggingPlayer   = null;
-  draggingWaypoint = null;
-}
+function onUp() { draggingPlayer = null; draggingWaypoint = null; }
 
 function selectPlayer(id) {
   selectedPlayerId = id;
@@ -1220,11 +1004,9 @@ function selectPlayer(id) {
   currentBreakAngle = null;
   const p = players.find(p=>p.id===id);
   document.getElementById('sel-player-label').textContent = p ? `${p.label} (${p.id})` : 'None';
-  // Sync option route toggle to this player's route
   isOptionRoute = !!(routes[id] && routes[id].option);
   document.getElementById('option-route-toggle').checked = isOptionRoute;
-  updateDirPad();
-  render();
+  updateDirPad(); render();
 }
 
 function addWaypoint(pos) {
@@ -1238,14 +1020,11 @@ function addWaypoint(pos) {
   routes[selectedPlayerId].push({ x: pos.x, y: pos.y });
   routes[selectedPlayerId].color = routeColor;
   routes[selectedPlayerId].option = isOptionRoute;
-  unsavedChanges = true;
-  updateDirPad();
-  render();
+  unsavedChanges = true; updateDirPad(); render();
 }
 
 function addMotionWaypoint(pos) {
   if (!selectedPlayerId) return;
-  // Clamp to behind LOS (y >= LOS in yard coords)
   const losYards = FIELD_YARDS_H - 10;
   const clampedY = Math.max(losYards, Math.min(FIELD_YARDS_H, pos.y));
   if (!motions[selectedPlayerId]) {
@@ -1253,11 +1032,9 @@ function addMotionWaypoint(pos) {
     motions[selectedPlayerId] = [{ x: p.x, y: p.y }];
   }
   motions[selectedPlayerId].push({ x: pos.x, y: clampedY });
-  unsavedChanges = true;
-  render();
+  unsavedChanges = true; render();
 }
 
-/* ─── Draw mode ──────────────────────────────────────────────────────────── */
 window.setDrawMode = (mode) => {
   currentDrawMode = mode;
   drawingMode = false;
@@ -1267,7 +1044,12 @@ window.setDrawMode = (mode) => {
   document.getElementById('motion-section').style.display = mode === 'motion' ? '' : 'none';
 };
 
-/* ─── Snap receiver ──────────────────────────────────────────────────────── */
+// CHANGE 1 listener — toggle smooth curves
+document.getElementById('smooth-route-toggle').addEventListener('change', function() {
+  isSmoothRoutes = this.checked;
+  render();
+});
+
 function buildSnapGrid() {
   const grid = document.getElementById('snap-grid');
   grid.innerHTML = '';
@@ -1277,37 +1059,21 @@ function buildSnapGrid() {
     btn.textContent = p.label + '\u00a0(' + p.id.replace('WR-','') + ')';
     btn.style.borderColor = p.color;
     if (p.id === snapReceiverId) btn.style.background = '#f0c040';
-    btn.addEventListener('click', () => {
-      snapReceiverId = p.id;
-      unsavedChanges = true;
-      buildSnapGrid();
-      render();
-    });
+    btn.addEventListener('click', () => { snapReceiverId = p.id; unsavedChanges = true; buildSnapGrid(); render(); });
     grid.appendChild(btn);
   });
 }
 
-/* ─── Option route toggle ────────────────────────────────────────────────── */
 document.getElementById('option-route-toggle').addEventListener('change', function() {
   isOptionRoute = this.checked;
-  if (selectedPlayerId && routes[selectedPlayerId]) {
-    routes[selectedPlayerId].option = isOptionRoute;
-    unsavedChanges = true;
-    render();
-  }
+  if (selectedPlayerId && routes[selectedPlayerId]) { routes[selectedPlayerId].option = isOptionRoute; unsavedChanges = true; render(); }
 });
 
-/* ─── Clear motion ───────────────────────────────────────────────────────── */
 window.clearSelectedMotion = () => {
   if (!selectedPlayerId) { toast('Select a player first', 'error'); return; }
-  delete motions[selectedPlayerId];
-  drawingMode = false;
-  unsavedChanges = true;
-  render();
-  toast('Motion cleared');
+  delete motions[selectedPlayerId]; drawingMode = false; unsavedChanges = true; render(); toast('Motion cleared');
 };
 
-/* ─── Route presets ─────────────────────────────────────────────────────── */
 document.querySelectorAll('.route-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (!selectedPlayerId) { toast('Select a player first', 'error'); return; }
@@ -1323,102 +1089,53 @@ function applyPresetRoute(type) {
   if (!p) return;
   const isLeft = p.x < FIELD_YARDS_W / 2;
   const sx = p.x, sy = p.y;
-  // d > 0 means "toward sideline" for this player
-  // left player: sideline is to the left (-x), so d = -1
-  // right player: sideline is to the right (+x), so d = +1
   const d = isLeft ? -1 : 1;
-
   let pts;
   switch(type) {
-    case 'go':
-      // Straight vertical fly
-      pts = [{x:sx,y:sy},{x:sx,y:sy-10}]; break;
-    case 'slant':
-      // Short stem then flat break inward
-      pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*6,y:sy-4}]; break;
-    case 'whip':
-      // Slant inward then snap flat back out to the sideline
-      pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*4,y:sy-5},{x:sx+d*4,y:sy-5}]; break;
-    case 'curl':
-      // Run up then curl back toward QB
-      pts = [{x:sx,y:sy},{x:sx,y:sy-6},{x:sx+d*1,y:sy-4}]; break;
-    case 'out':
-      // Stem then flat break to sideline
-      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*5,y:sy-5}]; break;
-    case 'in':
-      // 5y stem then break hard inward
-      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*5,y:sy-5}]; break;
-    case 'dig':
-      // 10y stem then break hard inward (deeper than in)
-      pts = [{x:sx,y:sy},{x:sx,y:sy-10},{x:sx-d*6,y:sy-10}]; break;
-    case 'corner':
-      // Stem then break toward the corner of the end zone (outward+up)
-      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-9}]; break;
-    case 'post':
-      // Stem then break toward the goalpost (inward+up)
-      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*4,y:sy-10}]; break;
-    case 'postcorner':
-      // Post fake then break back out to corner (double-cut)
-      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*3,y:sy-8},{x:sx+d*3,y:sy-12}]; break;
-    case 'cross':
-      // Short stem then run across the middle
-      pts = [{x:sx,y:sy},{x:sx,y:sy-2},{x:sx-d*8,y:sy-2}]; break;
-    case 'chair':
-      // Up, flat out to sideline at 5y, then vertical upfield
-      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-5},{x:sx+d*4,y:sy-12}]; break;
-    case 'flat':
-      // Straight release to 3y from the nearest sideline, 1y upfield
-      pts = [{x:sx,y:sy},{x:(isLeft ? 3 : FIELD_YARDS_W - 3), y:sy-1}]; break;
-    default:
-      pts = [{x:sx,y:sy},{x:sx,y:sy-8}];
+    case 'go':         pts = [{x:sx,y:sy},{x:sx,y:sy-10}]; break;
+    case 'slant':      pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*6,y:sy-4}]; break;
+    case 'whip':       pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*4,y:sy-5},{x:sx+d*4,y:sy-5}]; break;
+    case 'curl':       pts = [{x:sx,y:sy},{x:sx,y:sy-6},{x:sx+d*1,y:sy-4}]; break;
+    case 'out':        pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*5,y:sy-5}]; break;
+    case 'in':         pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*5,y:sy-5}]; break;
+    case 'dig':        pts = [{x:sx,y:sy},{x:sx,y:sy-10},{x:sx-d*6,y:sy-10}]; break;
+    case 'corner':     pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-9}]; break;
+    case 'post':       pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*4,y:sy-10}]; break;
+    case 'postcorner': pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*3,y:sy-8},{x:sx+d*3,y:sy-12}]; break;
+    case 'cross':      pts = [{x:sx,y:sy},{x:sx,y:sy-2},{x:sx-d*8,y:sy-2}]; break;
+    case 'chair':      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-5},{x:sx+d*4,y:sy-12}]; break;
+    case 'flat':       pts = [{x:sx,y:sy},{x:(isLeft ? 3 : FIELD_YARDS_W - 3), y:sy-1}]; break;
+    default:           pts = [{x:sx,y:sy},{x:sx,y:sy-8}];
   }
-  // Clamp all points within field
-  pts = pts.map(pt=>({
-    x: Math.max(0.5, Math.min(FIELD_YARDS_W-0.5, pt.x)),
-    y: Math.max(0.5, Math.min(FIELD_YARDS_H-0.5, pt.y))
-  }));
+  pts = pts.map(pt=>({ x: Math.max(0.5, Math.min(FIELD_YARDS_W-0.5, pt.x)), y: Math.max(0.5, Math.min(FIELD_YARDS_H-0.5, pt.y)) }));
   routes[selectedPlayerId] = pts;
   routes[selectedPlayerId].color = routeColor;
   currentBreakAngle = null;
-  unsavedChanges = true;
-  updateDirPad();
-  render();
+  unsavedChanges = true; updateDirPad(); render();
   toast(`${type} route applied`);
 }
 
-/* ─── Route end direction pad ───────────────────────────────────────────── */
 function updateDirPad() {
   const wrap = document.getElementById('dir-pad-wrap');
   const hint = document.getElementById('dir-pad-hint');
   const hasRoute = selectedPlayerId && routes[selectedPlayerId] && routes[selectedPlayerId].length >= 2;
   wrap.classList.toggle('visible', hasRoute);
   hint.style.display = hasRoute ? 'none' : '';
-
-  // Highlight active direction button if one is set
   document.querySelectorAll('.dir-btn[data-angle]').forEach(b => {
     b.classList.toggle('active', currentBreakAngle !== null && Number(b.dataset.angle) === currentBreakAngle);
   });
 }
 
-// Direction buttons
 document.querySelectorAll('.dir-btn[data-angle]').forEach(btn => {
   btn.addEventListener('click', () => {
     if (!selectedPlayerId || !routes[selectedPlayerId] || routes[selectedPlayerId].length < 2) return;
     const angle = Number(btn.dataset.angle);
-    if (currentBreakAngle === angle) {
-      // Toggle off — remove the directional override
-      currentBreakAngle = null;
-      updateDirPad();
-      render();
-      return;
-    }
+    if (currentBreakAngle === angle) { currentBreakAngle = null; updateDirPad(); render(); return; }
     currentBreakAngle = angle;
-    applyBreakDirection();
-    updateDirPad();
+    applyBreakDirection(); updateDirPad();
   });
 });
 
-// Break length slider
 const breakLenSlider = document.getElementById('break-len');
 const breakLenVal    = document.getElementById('break-len-val');
 breakLenSlider.addEventListener('input', () => {
@@ -1430,115 +1147,66 @@ function applyBreakDirection() {
   if (!selectedPlayerId) return;
   const pts = routes[selectedPlayerId];
   if (!pts || pts.length < 2) return;
-
   const len     = Number(breakLenSlider.value);
   const radians = (currentBreakAngle * Math.PI) / 180;
-
-  // The second-to-last point is the "elbow"
-  const elbow = pts[pts.length - 2];
-
-  // New final point at `len` yards from elbow in chosen direction
-  const newEnd = {
+  const elbow   = pts[pts.length - 2];
+  routes[selectedPlayerId][pts.length - 1] = {
     x: Math.max(0.5, Math.min(FIELD_YARDS_W - 0.5, elbow.x + Math.cos(radians) * len)),
     y: Math.max(0.5, Math.min(FIELD_YARDS_H - 0.5, elbow.y + Math.sin(radians) * len))
   };
-
-  // Replace only the last waypoint
-  routes[selectedPlayerId][pts.length - 1] = newEnd;
-  unsavedChanges = true;
-  render();
+  unsavedChanges = true; render();
 }
+
 document.querySelectorAll('.color-swatch').forEach(sw => {
   sw.addEventListener('click', () => {
     document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
     sw.classList.add('active');
     routeColor = sw.dataset.color;
-    if (selectedPlayerId && routes[selectedPlayerId]) {
-      routes[selectedPlayerId].color = routeColor;
-      render();
-    }
+    if (selectedPlayerId && routes[selectedPlayerId]) { routes[selectedPlayerId].color = routeColor; render(); }
   });
 });
 
-/* ─── Clear / Reset ─────────────────────────────────────────────────────── */
 window.clearSelectedRoute = () => {
   if (!selectedPlayerId) { toast('Select a player first', 'error'); return; }
-  delete routes[selectedPlayerId];
-  drawingMode = false;
-  currentBreakAngle = null;
-  unsavedChanges = true;
-  updateDirPad();
-  render();
-  toast('Route cleared');
+  delete routes[selectedPlayerId]; drawingMode = false; currentBreakAngle = null; unsavedChanges = true; updateDirPad(); render(); toast('Route cleared');
 };
 
-window.clearAll = () => {
-  if (!confirm('Reset the field to defaults?')) return;
-  initPlayers();
-  selectedPlayerId = null;
-  currentPlayId = null;
-  currentBreakAngle = null;
-  unsavedChanges = false;
-  isOptionRoute = false;
+function resetDesigner() {
+  initPlayers(); selectedPlayerId = null; currentPlayId = null; currentBreakAngle = null;
+  unsavedChanges = false; isOptionRoute = false;
   document.getElementById('play-name').value = 'New Play';
   document.getElementById('play-notes').value = '';
   document.getElementById('sel-player-label').textContent = 'Click a player to select';
   document.getElementById('option-route-toggle').checked = false;
-  buildSnapGrid();
-  updateDirPad();
-  render();
-};
+  buildSnapGrid(); updateDirPad(); render();
+}
 
-window.newPlay = () => {
-  initPlayers();
-  selectedPlayerId = null;
-  currentPlayId = null;
-  currentBreakAngle = null;
-  unsavedChanges = false;
-  isOptionRoute = false;
-  document.getElementById('play-name').value = 'New Play';
-  document.getElementById('play-notes').value = '';
-  document.getElementById('sel-player-label').textContent = 'Click a player to select';
-  document.getElementById('option-route-toggle').checked = false;
-  buildSnapGrid();
-  updateDirPad();
-  render();
-};
-
-// Called from My Plays "New Play" button — guards unsaved work
+window.clearAll = () => { if (!confirm('Reset the field to defaults?')) return; resetDesigner(); };
+window.newPlay  = () => resetDesigner();
 window.newPlayFromLibrary = () => {
-  if (unsavedChanges) {
-    const go = confirm('You have unsaved changes on the current play. Discard and start a new play?');
-    if (!go) return;
-  }
-  showPage('designer');
-  newPlay();
+  if (unsavedChanges) { if (!confirm('You have unsaved changes. Discard and start a new play?')) return; }
+  showPage('designer'); newPlay();
 };
 
 /* ══════════════════════════════════════════════════════════
-   SERIALISE / DESERIALISE PLAY
+   SERIALISE / DESERIALISE
 ══════════════════════════════════════════════════════════ */
 function serialisePlay() {
   const serialisedRoutes = {};
   for (const pid of Object.keys(routes)) {
     const pts = routes[pid];
-    serialisedRoutes[pid] = {
-      color:    pts.color  || '#111111',
-      option:   pts.option || false,
-      waypoints: pts.map(pt => ({ x: pt.x, y: pt.y }))
-    };
+    serialisedRoutes[pid] = { color: pts.color||'#111111', option: pts.option||false, waypoints: pts.map(pt=>({x:pt.x,y:pt.y})) };
   }
   const serialisedMotions = {};
-  for (const pid of Object.keys(motions)) {
-    serialisedMotions[pid] = motions[pid].map(pt => ({ x: pt.x, y: pt.y }));
-  }
+  for (const pid of Object.keys(motions)) serialisedMotions[pid] = motions[pid].map(pt=>({x:pt.x,y:pt.y}));
   return {
     name:           document.getElementById('play-name').value.trim() || 'Untitled',
     notes:          document.getElementById('play-notes').value.trim(),
-    players:        players.map(p => ({...p})),
+    players:        players.map(p=>({...p})),
     routes:         serialisedRoutes,
     motions:        serialisedMotions,
     snapReceiverId: snapReceiverId,
+    smoothRoutes:   isSmoothRoutes,
     thumbnail:      canvas.toDataURL('image/png', 0.6),
     updatedAt:      serverTimestamp()
   };
@@ -1546,58 +1214,37 @@ function serialisePlay() {
 
 function deserialisePlay(data) {
   players = data.players.map(p=>({...p}));
-  routes  = {};
-  motions = {};
+  routes  = {}; motions = {};
   snapReceiverId = data.snapReceiverId || 'QB';
+  isSmoothRoutes = data.smoothRoutes || false;
+  document.getElementById('smooth-route-toggle').checked = isSmoothRoutes;
   if (data.routes) {
     for (const pid of Object.keys(data.routes)) {
       const r = data.routes[pid];
       if (Array.isArray(r)) {
-        routes[pid] = r.map(pt => ({ x: pt.x, y: pt.y }));
-        routes[pid].color  = '#111111';
-        routes[pid].option = false;
+        routes[pid] = r.map(pt=>({x:pt.x,y:pt.y})); routes[pid].color='#111111'; routes[pid].option=false;
       } else {
-        routes[pid] = (r.waypoints || []).map(pt => ({ x: pt.x, y: pt.y }));
-        routes[pid].color  = r.color  || '#111111';
-        routes[pid].option = r.option || false;
+        routes[pid] = (r.waypoints||[]).map(pt=>({x:pt.x,y:pt.y})); routes[pid].color=r.color||'#111111'; routes[pid].option=r.option||false;
       }
     }
   }
-  if (data.motions) {
-    for (const pid of Object.keys(data.motions)) {
-      motions[pid] = data.motions[pid].map(pt => ({ x: pt.x, y: pt.y }));
-    }
-  }
+  if (data.motions) for (const pid of Object.keys(data.motions)) motions[pid] = data.motions[pid].map(pt=>({x:pt.x,y:pt.y}));
   document.getElementById('play-name').value  = data.name  || '';
   document.getElementById('play-notes').value = data.notes || '';
-  selectedPlayerId = null;
-  currentBreakAngle = null;
-  unsavedChanges = false;
-  isOptionRoute = false;
+  selectedPlayerId = null; currentBreakAngle = null; unsavedChanges = false; isOptionRoute = false;
   document.getElementById('option-route-toggle').checked = false;
-  buildSnapGrid();
-  updateDirPad();
-  render();
+  buildSnapGrid(); updateDirPad(); render();
 }
 
 /* ══════════════════════════════════════════════════════════
-   SAVE / LOAD (PERSONAL)
+   SAVE / LOAD
 ══════════════════════════════════════════════════════════ */
 window.savePlay = async () => {
   if (!currentUser) return;
-  const data = serialisePlay();
-  data.ownerId = currentUser.uid;
+  const data = serialisePlay(); data.ownerId = currentUser.uid;
   try {
-    if (currentPlayId) {
-      await setDoc(doc(db,'plays',currentPlayId), data);
-      unsavedChanges = false;
-      toast('Play updated');
-    } else {
-      const ref = await addDoc(collection(db,'plays'), data);
-      currentPlayId = ref.id;
-      unsavedChanges = false;
-      toast('Play saved');
-    }
+    if (currentPlayId) { await setDoc(doc(db,'plays',currentPlayId), data); unsavedChanges = false; toast('Play updated'); }
+    else { const ref = await addDoc(collection(db,'plays'), data); currentPlayId = ref.id; unsavedChanges = false; toast('Play saved'); }
   } catch(e) { toast('Error saving play', 'error'); console.error(e); }
 };
 
@@ -1607,31 +1254,16 @@ function loadMyPlays() {
   const q = query(collection(db,'plays'), where('ownerId','==',currentUser.uid));
   unsubPlays = onSnapshot(q, snap => {
     const grid = document.getElementById('plays-grid');
-    if (snap.empty) {
-      grid.innerHTML = `<div class="empty-state"><h2>No plays yet</h2><p>Head to the designer and save your first play.</p></div>`;
-      return;
-    }
+    if (snap.empty) { grid.innerHTML = `<div class="empty-state"><h2>No plays yet</h2><p>Head to the designer and save your first play.</p></div>`; return; }
     grid.innerHTML = '';
-    snap.docs.sort((a,b)=>{
-      const ta = a.data().updatedAt?.seconds || 0;
-      const tb = b.data().updatedAt?.seconds || 0;
-      return tb - ta;
-    }).forEach(d => renderPlayCard(grid, d.id, d.data(), false));
+    snap.docs.sort((a,b)=>(b.data().updatedAt?.seconds||0)-(a.data().updatedAt?.seconds||0)).forEach(d => renderPlayCard(grid, d.id, d.data(), false));
   });
 }
 
 function renderPlayCard(grid, id, data, isTeam) {
   const card = document.createElement('div');
   card.className = 'play-card';
-
-  // Thumbnail
-  if (data.thumbnail) {
-    const img = document.createElement('img');
-    img.src = data.thumbnail;
-    img.style.cssText = 'width:100%;display:block;';
-    card.appendChild(img);
-  }
-
+  if (data.thumbnail) { const img = document.createElement('img'); img.src = data.thumbnail; img.style.cssText = 'width:100%;display:block;'; card.appendChild(img); }
   const info = document.createElement('div');
   info.className = 'play-card-info';
   info.innerHTML = `
@@ -1645,30 +1277,11 @@ function renderPlayCard(grid, id, data, isTeam) {
       ${!isTeam ? `<button class="btn-icon danger" title="Delete">🗑️</button>` : ''}
     </div>`;
   card.appendChild(info);
-
   const [editBtn, printBtn, delBtn] = info.querySelectorAll('.btn-icon');
-
-  editBtn.addEventListener('click', e => { e.stopPropagation();
-    deserialisePlay(data);
-    currentPlayId = isTeam ? null : id;
-    showPage('designer');
-    toast(`Editing "${data.name}"`);
-  });
-
+  editBtn.addEventListener('click', e => { e.stopPropagation(); deserialisePlay(data); currentPlayId = isTeam ? null : id; showPage('designer'); toast(`Editing "${data.name}"`); });
   printBtn.addEventListener('click', e => { e.stopPropagation(); printPlayData(data); });
-
-  if (!isTeam && delBtn) {
-    delBtn.addEventListener('click', e => { e.stopPropagation();
-      if (confirm(`Delete "${data.name}"?`)) deleteDoc(doc(db,'plays',id)).then(()=>toast('Deleted'));
-    });
-  }
-
-  card.addEventListener('click', () => {
-    deserialisePlay(data);
-    currentPlayId = isTeam ? null : id;
-    showPage('designer');
-  });
-
+  if (!isTeam && delBtn) delBtn.addEventListener('click', e => { e.stopPropagation(); if (confirm(`Delete "${data.name}"?`)) deleteDoc(doc(db,'plays',id)).then(()=>toast('Deleted')); });
+  card.addEventListener('click', () => { deserialisePlay(data); currentPlayId = isTeam ? null : id; showPage('designer'); });
   grid.appendChild(card);
 }
 
@@ -1676,95 +1289,46 @@ function renderPlayCard(grid, id, data, isTeam) {
    PRINT
 ══════════════════════════════════════════════════════════ */
 function printPlayData(data) {
-  // Re-render to print canvas at fixed size
   const pc = document.getElementById('print-canvas');
   const w = 700, h = Math.round(700 * (FIELD_YARDS_H / FIELD_YARDS_W));
   pc.width = w; pc.height = h;
-  const pctx = pc.getContext('2d');
-  const savedCtx = ctx;
-  const savedPX  = PX;
-  const savedW   = FIELD_W;
-  const savedH   = FIELD_H;
-  const savedLos = LOS_Y;
-
-  // Temporarily redirect globals for render
-  PX = Math.floor(w / FIELD_YARDS_W);
-  FIELD_W = PX * FIELD_YARDS_W;
-  FIELD_H = PX * FIELD_YARDS_H;
-  LOS_Y   = FIELD_H - PX * 10;  // LOS is 10y from bottom
-
-  const tmpCanvas = document.createElement('canvas');
-  tmpCanvas.width = FIELD_W; tmpCanvas.height = FIELD_H;
-  const tmpCtx = tmpCanvas.getContext('2d');
-
-  // Swap context
-  const _ctx = window.__ctx = ctx;
-  // Inline render for print canvas
+  const savedPX = PX, savedW = FIELD_W, savedH = FIELD_H, savedLos = LOS_Y;
+  PX = Math.floor(w / FIELD_YARDS_W); FIELD_W = PX * FIELD_YARDS_W; FIELD_H = PX * FIELD_YARDS_H; LOS_Y = FIELD_H - PX * 10;
   deserialisePlay(data);
   PX = savedPX; FIELD_W = savedW; FIELD_H = savedH; LOS_Y = savedLos;
-
   document.getElementById('print-title').textContent = data.name || 'Play';
   document.getElementById('print-notes').textContent = data.notes || '';
-
   window.print();
 }
-
 window.printPlay = () => { printPlayData(serialisePlay()); };
 
 /* ══════════════════════════════════════════════════════════
    TEAM HUB
 ══════════════════════════════════════════════════════════ */
-// currentTeams: array of {id, ...teamData} for teams the user is on
 let currentTeams = [];
-// unsubscribe maps keyed by teamId
 const unsubRequestsMap  = new Map();
 const unsubTeamPlaysMap = new Map();
 
 async function initTeamSection() {
-  await refreshUserDoc();
-  currentTeams = [];
-
-  // Unsubscribe any existing listeners
+  await refreshUserDoc(); currentTeams = [];
   unsubRequestsMap.forEach(fn => fn());  unsubRequestsMap.clear();
   unsubTeamPlaysMap.forEach(fn => fn()); unsubTeamPlaysMap.clear();
-
   const teamIds        = userDoc.teamIds        || (userDoc.teamId        ? [userDoc.teamId]        : []);
   const pendingTeamIds = userDoc.pendingTeamIds  || (userDoc.pendingTeamId ? [userDoc.pendingTeamId] : []);
-
-  // Render pending requests
   await renderPendingSection(pendingTeamIds);
-
-  // Render each team the user is on
   const container = document.getElementById('teams-container');
   const emptyMsg  = document.getElementById('teams-empty');
-  // Clear existing team cards (but keep the empty message element)
   container.querySelectorAll('.team-card').forEach(el => el.remove());
-
-  if (teamIds.length === 0) {
-    emptyMsg.style.display = '';
-    document.getElementById('btn-save-team').style.display = 'none';
-  } else {
-    emptyMsg.style.display = 'none';
-    for (const teamId of teamIds) {
-      await renderTeamCard(teamId, container);
-    }
-    document.getElementById('btn-save-team').style.display = '';
-  }
+  if (teamIds.length === 0) { emptyMsg.style.display = ''; document.getElementById('btn-save-team').style.display = 'none'; }
+  else { emptyMsg.style.display = 'none'; for (const teamId of teamIds) await renderTeamCard(teamId, container); document.getElementById('btn-save-team').style.display = ''; }
 }
 
 async function renderPendingSection(pendingTeamIds) {
-  const section = document.getElementById('pending-section');
-  section.innerHTML = '';
+  const section = document.getElementById('pending-section'); section.innerHTML = '';
   for (const teamId of pendingTeamIds) {
-    const snap = await getDoc(doc(db,'teams',teamId));
-    if (!snap.exists()) continue;
-    const panel = document.createElement('div');
-    panel.className = 'team-panel';
-    panel.style.marginBottom = '16px';
-    panel.innerHTML = `
-      <h2>Request Pending</h2>
-      <p>Your request to join <strong>${escHtml(snap.data().name)}</strong> is awaiting captain approval.</p>
-      <button class="btn-sidebar" style="max-width:200px;margin-top:8px">Cancel Request</button>`;
+    const snap = await getDoc(doc(db,'teams',teamId)); if (!snap.exists()) continue;
+    const panel = document.createElement('div'); panel.className = 'team-panel'; panel.style.marginBottom = '16px';
+    panel.innerHTML = `<h2>Request Pending</h2><p>Your request to join <strong>${escHtml(snap.data().name)}</strong> is awaiting captain approval.</p><button class="btn-sidebar" style="max-width:200px;margin-top:8px">Cancel Request</button>`;
     panel.querySelector('button').addEventListener('click', () => cancelJoinRequest(teamId));
     section.appendChild(panel);
   }
@@ -1772,18 +1336,12 @@ async function renderPendingSection(pendingTeamIds) {
 
 async function renderTeamCard(teamId, container) {
   const snap = await getDoc(doc(db,'teams',teamId));
-  if (!snap.exists()) {
-    // Team gone — silently remove from user's list
-    await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayRemove(teamId) }, { merge: true });
-    return;
-  }
+  if (!snap.exists()) { await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayRemove(teamId) }, { merge: true }); return; }
   const team = { id: teamId, ...snap.data() };
   currentTeams.push(team);
   const isCaptain = team.captainId === currentUser.uid;
-
   const card = document.createElement('div');
-  card.className = 'team-card';
-  card.dataset.teamId = teamId;
+  card.className = 'team-card'; card.dataset.teamId = teamId;
   card.innerHTML = `
     <div class="team-panel" style="margin-bottom:16px">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
@@ -1791,81 +1349,46 @@ async function renderTeamCard(teamId, container) {
           <h2 style="margin-bottom:6px">${escHtml(team.name)}</h2>
           <div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:12px;color:var(--muted)">Code:</span>
-            <code class="team-code" style="font-size:16px;letter-spacing:3px;color:var(--lime);font-weight:700">${escHtml(team.code)}</code>
+            <code style="font-size:16px;letter-spacing:3px;color:var(--lime);font-weight:700">${escHtml(team.code)}</code>
             <button class="btn-icon copy-code-btn" title="Copy code">📋</button>
           </div>
         </div>
         <span class="status-pill ${isCaptain?'pill-captain':'pill-member'}">${isCaptain?'Captain':'Member'}</span>
       </div>
-
-      ${isCaptain ? `
-      <div class="requests-area" style="margin-bottom:12px;display:none">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">
-          Join Requests <span class="req-count"></span>
-        </div>
-        <div class="requests-list member-list"></div>
-      </div>` : ''}
-
+      ${isCaptain ? `<div class="requests-area" style="margin-bottom:12px;display:none"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Join Requests <span class="req-count"></span></div><div class="requests-list member-list"></div></div>` : ''}
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Members</div>
       <div class="members-list member-list" style="margin-bottom:12px"></div>
-
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn-sidebar save-here-btn" style="max-width:160px">💾 Save Play Here</button>
         ${!isCaptain ? `<button class="btn-sidebar leave-btn" style="max-width:140px;color:var(--error);border-color:var(--error)">Leave Team</button>` : ''}
       </div>
     </div>
-
     <div>
       <div class="page-header" style="margin-bottom:12px">
         <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--lime)">Playbook — ${escHtml(team.name)}</span>
         <button class="btn-action add-play-btn">+ Add Play</button>
       </div>
       <div class="plays-grid team-plays-grid"></div>
-    </div>
-  `;
-
-  // Copy code
-  card.querySelector('.copy-code-btn').addEventListener('click', () => {
-    navigator.clipboard.writeText(team.code).then(() => toast('Team code copied!'));
-  });
-
-  // Save play to this team directly
+    </div>`;
+  card.querySelector('.copy-code-btn').addEventListener('click', () => navigator.clipboard.writeText(team.code).then(() => toast('Team code copied!')));
   card.querySelector('.save-here-btn').addEventListener('click', () => savePlayToSpecificTeam(teamId));
-
-  // Leave team
   const leaveBtn = card.querySelector('.leave-btn');
   if (leaveBtn) leaveBtn.addEventListener('click', () => leaveTeam(teamId));
-
-  // Add play (go to designer)
   card.querySelector('.add-play-btn').addEventListener('click', () => showPage('designer'));
-
   container.appendChild(card);
-
-  // Load members
   loadMembersForCard(card, team);
-
-  // Subscribe to join requests (captain only)
   if (isCaptain) subscribeRequestsForCard(card, teamId);
-
-  // Subscribe to team plays
   subscribeTeamPlaysForCard(card, teamId);
 }
 
 async function loadMembersForCard(card, team) {
-  const list = card.querySelector('.members-list');
-  list.innerHTML = '';
+  const list = card.querySelector('.members-list'); list.innerHTML = '';
   for (const uid of (team.memberIds || [])) {
     const usnap = await getDoc(doc(db,'users',uid));
     const udata = usnap.exists() ? usnap.data() : { displayName: uid };
     const isCap = uid === team.captainId;
-    const row = document.createElement('div');
-    row.className = 'member-row';
-    row.innerHTML = `
-      <div>
-        <div class="name">${escHtml(udata.displayName||uid)}</div>
-        <div class="role">${udata.email||''}</div>
-      </div>
-      <span class="status-pill ${isCap?'pill-captain':'pill-member'}">${isCap?'Captain':'Member'}</span>`;
+    const row = document.createElement('div'); row.className = 'member-row';
+    row.innerHTML = `<div><div class="name">${escHtml(udata.displayName||uid)}</div><div class="role">${udata.email||''}</div></div><span class="status-pill ${isCap?'pill-captain':'pill-member'}">${isCap?'Captain':'Member'}</span>`;
     list.appendChild(row);
   }
 }
@@ -1873,42 +1396,13 @@ async function loadMembersForCard(card, team) {
 function subscribeRequestsForCard(card, teamId) {
   const q = query(collection(db,'teams',teamId,'joinRequests'), where('status','==','pending'));
   const unsub = onSnapshot(q, snap => {
-    const area    = card.querySelector('.requests-area');
-    const list    = card.querySelector('.requests-list');
-    const countEl = card.querySelector('.req-count');
-    const count   = snap.size;
-
-    area.style.display = count > 0 ? '' : 'none';
-    countEl.textContent = count ? `(${count})` : '';
-
-    // Update total badge on nav tab
-    let total = 0;
-    unsubRequestsMap.forEach(() => {}); // just iterate to count
-    document.querySelectorAll('.team-card').forEach(c => {
-      total += c.querySelectorAll('.request-row').length;
-    });
-    // Re-count properly after render
-    setTimeout(() => {
-      let t = 0;
-      document.querySelectorAll('.request-row').length && (t = document.querySelectorAll('.request-row').length);
-      document.getElementById('team-badge').textContent = t;
-      document.getElementById('team-badge').classList.toggle('show', t > 0);
-    }, 0);
-
+    const area = card.querySelector('.requests-area'), list = card.querySelector('.requests-list'), countEl = card.querySelector('.req-count');
+    const count = snap.size; area.style.display = count > 0 ? '' : 'none'; countEl.textContent = count ? `(${count})` : '';
+    setTimeout(() => { const t = document.querySelectorAll('.request-row').length; document.getElementById('team-badge').textContent = t; document.getElementById('team-badge').classList.toggle('show', t > 0); }, 0);
     list.innerHTML = '';
     snap.forEach(d => {
-      const data = d.data();
-      const row  = document.createElement('div');
-      row.className = 'request-row';
-      row.innerHTML = `
-        <div>
-          <div class="name">${escHtml(data.displayName||d.id)}</div>
-          <div class="role">${escHtml(data.email||'')}</div>
-        </div>
-        <div class="request-btns">
-          <button class="btn-approve">Approve</button>
-          <button class="btn-deny">Deny</button>
-        </div>`;
+      const data = d.data(), row = document.createElement('div'); row.className = 'request-row';
+      row.innerHTML = `<div><div class="name">${escHtml(data.displayName||d.id)}</div><div class="role">${escHtml(data.email||'')}</div></div><div class="request-btns"><button class="btn-approve">Approve</button><button class="btn-deny">Deny</button></div>`;
       row.querySelector('.btn-approve').addEventListener('click', () => approveRequest(teamId, d.id, data, card));
       row.querySelector('.btn-deny').addEventListener('click',    () => denyRequest(teamId, d.id));
       list.appendChild(row);
@@ -1920,13 +1414,9 @@ function subscribeRequestsForCard(card, teamId) {
 function subscribeTeamPlaysForCard(card, teamId) {
   const grid = card.querySelector('.team-plays-grid');
   const unsub = onSnapshot(collection(db,'teams',teamId,'plays'), snap => {
-    if (snap.empty) {
-      grid.innerHTML = `<div class="empty-state"><h2 style="font-size:15px">No plays yet</h2><p>Save a play from the designer.</p></div>`;
-      return;
-    }
+    if (snap.empty) { grid.innerHTML = `<div class="empty-state"><h2 style="font-size:15px">No plays yet</h2><p>Save a play from the designer.</p></div>`; return; }
     grid.innerHTML = '';
-    snap.docs.sort((a,b) => (b.data().updatedAt?.seconds||0) - (a.data().updatedAt?.seconds||0))
-      .forEach(d => renderPlayCard(grid, d.id, d.data(), true));
+    snap.docs.sort((a,b)=>(b.data().updatedAt?.seconds||0)-(a.data().updatedAt?.seconds||0)).forEach(d => renderPlayCard(grid, d.id, d.data(), true));
   });
   unsubTeamPlaysMap.set(teamId, unsub);
 }
@@ -1935,17 +1425,10 @@ async function approveRequest(teamId, uid, requestData, card) {
   try {
     await updateDoc(doc(db,'teams',teamId), { memberIds: arrayUnion(uid) });
     await updateDoc(doc(db,'teams',teamId,'joinRequests',uid), { status:'approved' });
-    await setDoc(doc(db,'users',uid), {
-      teamIds:        arrayUnion(teamId),
-      pendingTeamIds: arrayRemove(teamId)
-    }, { merge: true });
+    await setDoc(doc(db,'users',uid), { teamIds: arrayUnion(teamId), pendingTeamIds: arrayRemove(teamId) }, { merge: true });
     toast(`${requestData.displayName} approved!`);
-    // Refresh members list for this card
     const team = currentTeams.find(t => t.id === teamId);
-    if (team) {
-      team.memberIds = [...(team.memberIds||[]), uid];
-      loadMembersForCard(card, team);
-    }
+    if (team) { team.memberIds = [...(team.memberIds||[]), uid]; loadMembersForCard(card, team); }
   } catch(e) { toast('Error approving request','error'); console.error(e); }
 }
 
@@ -1957,167 +1440,100 @@ async function denyRequest(teamId, uid) {
   } catch(e) { toast('Error','error'); }
 }
 
-/* ── Create Team ──────────────────────────────────────────────────────── */
 window.createTeam = async () => {
   const name = document.getElementById('new-team-name').value.trim();
   if (!name) { toast('Enter a team name','error'); return; }
   const code = genCode();
   try {
-    const ref = await addDoc(collection(db,'teams'), {
-      name, code,
-      captainId: currentUser.uid,
-      memberIds: [currentUser.uid],
-      createdAt: serverTimestamp()
-    });
+    const ref = await addDoc(collection(db,'teams'), { name, code, captainId: currentUser.uid, memberIds: [currentUser.uid], createdAt: serverTimestamp() });
     await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayUnion(ref.id) }, { merge: true });
     document.getElementById('new-team-name').value = '';
     await refreshUserDoc();
-    // Add the new card without full reinit
     const container = document.getElementById('teams-container');
     document.getElementById('teams-empty').style.display = 'none';
     await renderTeamCard(ref.id, container);
     document.getElementById('btn-save-team').style.display = '';
     toast(`Team "${name}" created! Code: ${code}`);
-  } catch(e) {
-    console.error('createTeam error:', e);
-    toast(`Error: ${e.code || e.message || 'unknown'}`, 'error');
-  }
+  } catch(e) { console.error('createTeam error:', e); toast(`Error: ${e.code || e.message || 'unknown'}`, 'error'); }
 };
 
-function genCode() {
-  return Math.random().toString(36).substring(2,8).toUpperCase();
-}
+function genCode() { return Math.random().toString(36).substring(2,8).toUpperCase(); }
 
-/* ── Join Team ────────────────────────────────────────────────────────── */
 window.requestJoin = async () => {
-  const code     = document.getElementById('join-code').value.trim().toUpperCase();
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
   const statusEl = document.getElementById('join-status');
   if (!code || code.length !== 6) { statusEl.textContent = 'Enter a valid 6-letter code.'; return; }
   statusEl.textContent = 'Searching…';
   try {
-    const q    = query(collection(db,'teams'), where('code','==',code));
+    const q = query(collection(db,'teams'), where('code','==',code));
     const snap = await getDocs(q);
     if (snap.empty) { statusEl.textContent = 'No team found with that code.'; return; }
-    const teamDoc  = snap.docs[0];
-    const teamData = teamDoc.data();
-    if ((teamData.memberIds||[]).includes(currentUser.uid)) {
-      statusEl.textContent = 'You are already on this team.'; return;
-    }
+    const teamDoc = snap.docs[0], teamData = teamDoc.data();
+    if ((teamData.memberIds||[]).includes(currentUser.uid)) { statusEl.textContent = 'You are already on this team.'; return; }
     const pendingTeamIds = userDoc.pendingTeamIds || (userDoc.pendingTeamId ? [userDoc.pendingTeamId] : []);
-    if (pendingTeamIds.includes(teamDoc.id)) {
-      statusEl.textContent = 'You already have a pending request for this team.'; return;
-    }
-    await setDoc(doc(db,'teams',teamDoc.id,'joinRequests',currentUser.uid), {
-      displayName: currentUser.displayName || currentUser.email,
-      email:       currentUser.email,
-      status:      'pending',
-      requestedAt: serverTimestamp()
-    });
+    if (pendingTeamIds.includes(teamDoc.id)) { statusEl.textContent = 'You already have a pending request for this team.'; return; }
+    await setDoc(doc(db,'teams',teamDoc.id,'joinRequests',currentUser.uid), { displayName: currentUser.displayName||currentUser.email, email: currentUser.email, status: 'pending', requestedAt: serverTimestamp() });
     await setDoc(doc(db,'users',currentUser.uid), { pendingTeamIds: arrayUnion(teamDoc.id) }, { merge: true });
-    document.getElementById('join-code').value = '';
-    statusEl.textContent = '';
-    await refreshUserDoc();
-    await renderPendingSection(userDoc.pendingTeamIds || [teamDoc.id]);
+    document.getElementById('join-code').value = ''; statusEl.textContent = '';
+    await refreshUserDoc(); await renderPendingSection(userDoc.pendingTeamIds || [teamDoc.id]);
     toast(`Request sent to "${teamData.name}"!`);
   } catch(e) { statusEl.textContent = 'Error. Try again.'; console.error(e); }
 };
 
-/* ── Cancel join request ──────────────────────────────────────────────── */
 window.cancelJoinRequest = async (teamId) => {
   if (!confirm('Cancel your join request?')) return;
   try {
     await deleteDoc(doc(db,'teams',teamId,'joinRequests',currentUser.uid));
     await setDoc(doc(db,'users',currentUser.uid), { pendingTeamIds: arrayRemove(teamId) }, { merge: true });
-    await refreshUserDoc();
-    const pendingTeamIds = userDoc.pendingTeamIds || [];
-    await renderPendingSection(pendingTeamIds);
+    await refreshUserDoc(); await renderPendingSection(userDoc.pendingTeamIds || []);
     toast('Request cancelled');
   } catch(e) { toast('Error','error'); }
 };
 
-/* ── Leave Team ───────────────────────────────────────────────────────── */
 window.leaveTeam = async (teamId) => {
-  const team = currentTeams.find(t => t.id === teamId);
-  if (!team) return;
-  if (team.captainId === currentUser.uid) {
-    alert('Captains cannot leave. Transfer captaincy first, or delete the team.'); return;
-  }
+  const team = currentTeams.find(t => t.id === teamId); if (!team) return;
+  if (team.captainId === currentUser.uid) { alert('Captains cannot leave. Transfer captaincy first, or delete the team.'); return; }
   if (!confirm(`Leave "${team.name}"?`)) return;
   try {
     await updateDoc(doc(db,'teams',teamId), { memberIds: arrayRemove(currentUser.uid) });
     await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayRemove(teamId) }, { merge: true });
-    // Stop listeners for this team
     if (unsubTeamPlaysMap.has(teamId)) { unsubTeamPlaysMap.get(teamId)(); unsubTeamPlaysMap.delete(teamId); }
     if (unsubRequestsMap.has(teamId))  { unsubRequestsMap.get(teamId)();  unsubRequestsMap.delete(teamId); }
-    // Remove card from DOM
     document.querySelector(`.team-card[data-team-id="${teamId}"]`)?.remove();
     currentTeams = currentTeams.filter(t => t.id !== teamId);
-    if (currentTeams.length === 0) {
-      document.getElementById('teams-empty').style.display = '';
-      document.getElementById('btn-save-team').style.display = 'none';
-    }
-    await refreshUserDoc();
-    toast('Left the team');
+    if (currentTeams.length === 0) { document.getElementById('teams-empty').style.display = ''; document.getElementById('btn-save-team').style.display = 'none'; }
+    await refreshUserDoc(); toast('Left the team');
   } catch(e) { toast('Error','error'); console.error(e); }
 };
 
-/* ── Save play to team ────────────────────────────────────────────────── */
 window.savePlayToTeam = async () => {
   if (currentTeams.length === 0) { toast('You are not on any teams','error'); return; }
-  if (currentTeams.length === 1) {
-    savePlayToSpecificTeam(currentTeams[0].id); return;
-  }
-  // Multiple teams — show picker
-  const list = document.getElementById('team-picker-list');
-  list.innerHTML = '';
+  if (currentTeams.length === 1) { savePlayToSpecificTeam(currentTeams[0].id); return; }
+  const list = document.getElementById('team-picker-list'); list.innerHTML = '';
   currentTeams.forEach(team => {
-    const btn = document.createElement('button');
-    btn.className = 'btn-sidebar';
-    btn.textContent = team.name;
-    btn.addEventListener('click', () => {
-      closeTeamPicker();
-      savePlayToSpecificTeam(team.id);
-    });
+    const btn = document.createElement('button'); btn.className = 'btn-sidebar'; btn.textContent = team.name;
+    btn.addEventListener('click', () => { closeTeamPicker(); savePlayToSpecificTeam(team.id); });
     list.appendChild(btn);
   });
-  const overlay = document.getElementById('team-picker-overlay');
-  overlay.style.display = 'flex';
+  document.getElementById('team-picker-overlay').style.display = 'flex';
 };
 
-window.closeTeamPicker = () => {
-  document.getElementById('team-picker-overlay').style.display = 'none';
-};
+window.closeTeamPicker = () => { document.getElementById('team-picker-overlay').style.display = 'none'; };
 
 async function savePlayToSpecificTeam(teamId) {
-  const teamData = serialisePlay();
-  teamData.authorId   = currentUser.uid;
-  teamData.authorName = currentUser.displayName || currentUser.email;
+  const teamData = serialisePlay(); teamData.authorId = currentUser.uid; teamData.authorName = currentUser.displayName || currentUser.email;
   const team = currentTeams.find(t => t.id === teamId);
   try {
-    // Save to team playbook
     await addDoc(collection(db,'teams',teamId,'plays'), teamData);
-
-    // Also automatically save to personal My Plays
-    const personalData = serialisePlay();
-    personalData.ownerId = currentUser.uid;
-    if (currentPlayId) {
-      await setDoc(doc(db,'plays',currentPlayId), personalData);
-    } else {
-      const ref = await addDoc(collection(db,'plays'), personalData);
-      currentPlayId = ref.id;
-    }
+    const personalData = serialisePlay(); personalData.ownerId = currentUser.uid;
+    if (currentPlayId) { await setDoc(doc(db,'plays',currentPlayId), personalData); }
+    else { const ref = await addDoc(collection(db,'plays'), personalData); currentPlayId = ref.id; }
     unsavedChanges = false;
-
     toast(`Saved to ${team ? team.name : 'team'} & My Plays!`);
   } catch(e) { toast('Error saving to team','error'); console.error(e); }
 }
 
-/* ══════════════════════════════════════════════════════════
-   UTILS
-══════════════════════════════════════════════════════════ */
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ── Boot ─────────────────────────────────────────────────────────────── */
 initPlayers();
