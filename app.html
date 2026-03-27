@@ -6,10 +6,7 @@
 <title>FFA Playmaker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>emailjs.init('jDNKFNSJ4fLc2aQ7W');</script>
-  
-  <style>
+<style>
 /* ── Reset & Variables ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -303,56 +300,6 @@ canvas#field {
   touch-action: none;
 }
 
-  /* ── Feedback Modal ───────────────────────────────────────────────────── */
-.feedback-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-}
-.feedback-overlay.open { display: flex; }
-.feedback-modal {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 28px;
-  width: 90%;
-  max-width: 460px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.feedback-modal h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  color: var(--lime);
-  letter-spacing: 0.5px;
-  margin: 0;
-}
-.feedback-modal p {
-  font-size: 13px;
-  color: var(--muted);
-  margin: 0;
-}
-.feedback-modal textarea {
-  width: 100%;
-  min-height: 160px;
-  background: var(--turf2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  padding: 10px 12px;
-  outline: none;
-  resize: vertical;
-}
-.feedback-modal textarea:focus { border-color: var(--lime); }
-.feedback-modal-actions { display: flex; gap: 8px; }
-
 /* ═══════════════════════════════════════════════════════════════════════════
    MY PLAYS
 ══════════════════════════════════════════════════════════════════════════ */
@@ -570,8 +517,7 @@ canvas#field {
       <span class="badge" id="team-badge">0</span>
     </button>
   </div>
-<button class="nav-tab" onclick="openFeedback()" style="margin-left:8px;flex:none">💬 Feedback</button>
-  <div class="nav-user">   
+  <div class="nav-user">
     <span>Signed in as <strong id="user-name-display">…</strong></span>
     <button class="btn-signout" onclick="doSignOut()">Sign out</button>
   </div>
@@ -768,32 +714,7 @@ canvas#field {
     <button class="btn-sidebar" onclick="closeTeamPicker()">Cancel</button>
   </div>
 </div>
-  
-<script>
-  window.submitFeedback = async () => {
-  const text = document.getElementById('feedback-text').value.trim();
-  if (!text) { toast('Please write something first', 'error'); return; }
-  const sendBtn = document.querySelector('#feedback-overlay .btn-sidebar.primary');
-  sendBtn.textContent = 'Sending…';
-  sendBtn.disabled = true;
-  const user = currentUser ? (currentUser.displayName || currentUser.email || 'unknown') : 'unknown';
-  try {
-    await emailjs.send(service_w38100i, template_qceqi77, {
-      from_user: user,
-      message:   text
-    });
-    closeFeedback();
-    toast('Feedback sent — thanks!');
-  } catch(e) {
-    console.error(e);
-    toast('Failed to send — please try again', 'error');
-  } finally {
-    sendBtn.textContent = 'Send';
-    sendBtn.disabled = false;
-  }
-};
-</script>
-  
+
 <!-- Firebase -->
 <script src="firebase-config.js"></script>
 <script type="module">
@@ -2162,32 +2083,6 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-  /* ── Feedback ─────────────────────────────────────────────────────────── */
-window.openFeedback = () => {
-  document.getElementById('feedback-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('feedback-text').focus(), 50);
-};
-
-window.closeFeedback = () => {
-  document.getElementById('feedback-overlay').classList.remove('open');
-  document.getElementById('feedback-text').value = '';
-};
-
-window.submitFeedback = () => {
-  const text = document.getElementById('feedback-text').value.trim();
-  if (!text) { toast('Please write something first', 'error'); return; }
-  const user = currentUser ? (currentUser.displayName || currentUser.email || 'unknown') : 'unknown';
-  const body = encodeURIComponent(`From: ${user}\n\n${text}`);
-  window.location.href = `mailto:philkip_j@hotmail.com?subject=FFA%20Playbook%20feedback&body=${body}`;
-  closeFeedback();
-  toast('Opening your mail app…');
-};
-
-// Close feedback modal on overlay click
-document.getElementById('feedback-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeFeedback();
-});
-  
 /* ── Boot ─────────────────────────────────────────────────────────────── */
 initPlayers();
 resizeCanvas();
