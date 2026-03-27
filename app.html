@@ -813,7 +813,8 @@ import { getAuth, signOut, onAuthStateChanged }        from "https://www.gstatic
 import {
   getFirestore, doc, getDoc, getDocs, setDoc,
   addDoc, deleteDoc, updateDoc, collection,
-  query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove
+  query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove,
+  orderBy, limit 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ══════════════════════════════════════════════════════════
@@ -822,6 +823,23 @@ import {
 const app  = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+
+  // --- STEP 1 START ---
+async function logActivity(type, details) {
+  try {
+    // Note: ensure 'addDoc', 'collection', 'serverTimestamp' 
+    // are included in your { import } list at the top of the script
+    await addDoc(collection(db, "activity_log"), {
+      type: type, 
+      details: details,
+      user: currentUser ? currentUser.email : 'Unknown',
+      timestamp: serverTimestamp()
+    });
+  } catch (e) {
+    console.error("Logging failed", e);
+  }
+}
+// --- STEP 1 END ---
 
 let currentUser   = null;
 let userDoc       = null;
@@ -1752,11 +1770,20 @@ function renderPlayCard(grid, id, data, isTeam) {
 
   printBtn.addEventListener('click', e => { e.stopPropagation(); printPlayData(data); });
 
-  if (!isTeam && delBtn) {
-    delBtn.addEventListener('click', e => { e.stopPropagation();
-      if (confirm(`Delete "${data.name}"?`)) deleteDoc(doc(db,'plays',id)).then(()=>toast('Deleted'));
-    });
-  }
+ if (!isTeam && delBtn) {
+  delBtn.addEventListener('click', async e => { // Added 'async' here
+    e.stopPropagation();
+    if (confirm(`Delete "${data.name}"?`)) {
+      // --- LOG THE ACTION ---
+      await logActivity('DELETE_PLAY', `Play "${data.name}" (ID: ${id}) was deleted.`);
+      
+      // --- PERFORM THE DELETE ---
+      deleteDoc(doc(db,'plays',id))
+        .then(() => toast('Deleted'))
+        .catch(err => console.error("Delete failed", err));
+    }
+  });
+}
 
   card.addEventListener('click', () => {
     deserialisePlay(data);
@@ -2031,6 +2058,10 @@ window.createTeam = async () => {
       memberIds: [currentUser.uid],
       createdAt: serverTimestamp()
     });
+
+    // --- ADD THIS LOG LINE HERE ---
+    await logActivity('CREATE_TEAM', `Team "${name}" created (Code: ${code})`);
+
     await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayUnion(ref.id) }, { merge: true });
     document.getElementById('new-team-name').value = '';
     await refreshUserDoc();
