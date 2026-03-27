@@ -769,7 +769,8 @@ canvas#field {
   </div>
 </div>
   
-window.submitFeedback = async () => {
+<script>
+  window.submitFeedback = async () => {
   const text = document.getElementById('feedback-text').value.trim();
   if (!text) { toast('Please write something first', 'error'); return; }
   const sendBtn = document.querySelector('#feedback-overlay .btn-sidebar.primary');
@@ -791,6 +792,7 @@ window.submitFeedback = async () => {
     sendBtn.disabled = false;
   }
 };
+</script>
   
 <!-- Firebase -->
 <script src="firebase-config.js"></script>
