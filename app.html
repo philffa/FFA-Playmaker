@@ -480,8 +480,43 @@ canvas#field {
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.error { border-color: var(--error); }
+/* Feedback Modal Styling */
+#feedback-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10000;
+  align-items: center; 
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.feedback-content {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  padding: 24px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.feedback-textarea {
+  width: 100%;
+  height: 180px;
+  background: var(--turf3);
+  color: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  resize: none;
+  margin: 15px 0;
+  outline: none;
+}
+.feedback-textarea:focus { border-color: var(--lime); }
 
-/* ── Print styles ─────────────────────────────────────────────────────── */
+  /* ── Print styles ─────────────────────────────────────────────────────── */
 @media print {
   nav, .designer-sidebar, #page-plays, #page-team, .toast { display: none !important; }
   body { background: white; }
@@ -515,7 +550,7 @@ canvas#field {
     <button class="nav-tab" onclick="showPage('team')"     id="tab-team">
       🏟️ Team Hub
       <span class="badge" id="team-badge">0</span>
-    </button>
+    </button><button class="nav-tab" onclick="openFeedbackModal()" style="color: var(--warning); border: 1px solid rgba(255,179,71,0.2); margin-left: 5px;">🐞 Feedback</button>
   </div>
   <div class="nav-user">
     <span>Signed in as <strong id="user-name-display">…</strong></span>
@@ -714,9 +749,64 @@ canvas#field {
     <button class="btn-sidebar" onclick="closeTeamPicker()">Cancel</button>
   </div>
 </div>
-
+  
+<div id="feedback-modal">
+  <div class="feedback-content">
+    <h2 style="font-family:'Bebas Neue'; color:var(--lime); font-size: 24px; letter-spacing: 1px;">Bug Report / Feedback</h2>
+    <p style="font-size: 12px; color: var(--muted); margin-bottom: 5px;">Help us improve FFA Playmaker. Describe the issue or your idea below.</p>
+    <textarea id="feedback-text" class="feedback-textarea" placeholder="Type your message here..."></textarea>
+    <div style="display:flex; gap:10px;">
+      <button class="btn-sidebar primary" id="send-feedback-btn" onclick="sendFeedback()">Send Report</button>
+      <button class="btn-sidebar" onclick="closeFeedbackModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+  
 <!-- Firebase -->
 <script src="firebase-config.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  (function() {
+    emailjs.init("jDNKFNSJ4fLc2aQ7W");
+  })();
+
+  // Global functions to handle the modal and email
+  window.openFeedbackModal = () => {
+    document.getElementById('feedback-modal').style.display = 'flex';
+  };
+
+  window.closeFeedbackModal = () => {
+    document.getElementById('feedback-modal').style.display = 'none';
+    document.getElementById('feedback-text').value = '';
+  };
+
+  window.sendFeedback = async () => {
+    const btn = document.getElementById('send-feedback-btn');
+    const text = document.getElementById('feedback-text').value;
+    const user = document.getElementById('user-name-display').textContent;
+
+    if (!text.trim()) return alert("Please enter your feedback.");
+
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+
+    try {
+      await emailjs.send('service_w38100i', 'template_qceqi77', {
+        message: text,
+        from_name: user,
+        reply_to: 'philkip_j@hotmail.com'
+      });
+      alert("Sent! Thanks for the help.");
+      closeFeedbackModal();
+    } catch (err) {
+      alert("Error sending. Check the console for details.");
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Send Report";
+    }
+  };
+</script>
 <script type="module">
 import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged }        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
