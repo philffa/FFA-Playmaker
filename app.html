@@ -2082,7 +2082,19 @@ async function savePlayToSpecificTeam(teamId) {
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
+<!-- Feedback Modal -->
+<div class="feedback-overlay" id="feedback-overlay">
+  <div class="feedback-modal">
+    <h2>💬 Feedback / Report a Bug</h2>
+    <p>Describe the issue or suggestion and hit Send — it goes straight to the developer.</p>
+    <textarea id="feedback-text" maxlength="5000" placeholder="What's on your mind? (5000 character limit)"></textarea>
+    <div class="feedback-modal-actions">
+      <button class="btn-sidebar primary" onclick="submitFeedback()">Send Feedback</button>
+      <button class="btn-sidebar" onclick="closeFeedback()">Cancel</button>
+    </div>
+  </div>
+</div>
+  
 /* ── Boot ─────────────────────────────────────────────────────────────── */
 initPlayers();
 resizeCanvas();
