@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFA Playmaker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Variables ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --turf:       #1a2e1a;
+  --turf2:      #213821;
+  --turf3:      #172617;
+  --lime:       #b8ff47;
+  --lime2:      #96d93a;
+  --white:      #f2f5ee;
+  --muted:      #7a8e72;
+  --panel:      #0f1a0f;
+  --border:     #2a3d2a;
+  --error:      #ff5e5e;
+  --warning:    #ffb347;
+  --info:       #47d4ff;
+  --radius:     10px;
+  --nav-h:      58px;
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--turf);
+  color: var(--white);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Nav ────────────────────────────────────────────────────────────────── */
+nav {
+  height: var(--nav-h);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 0;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  color: var(--lime);
+  letter-spacing: 1.5px;
+  margin-right: 24px;
+  flex-shrink: 0;
+}
+.nav-tabs { display: flex; gap: 2px; flex: 1; }
+.nav-tab {
+  padding: 7px 16px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-tab:hover { background: var(--turf2); color: var(--white); }
+.nav-tab.active { background: var(--lime); color: var(--panel); font-weight: 700; }
+.nav-tab .badge {
+  background: var(--error);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 1px 6px;
+  display: none;
+}
+.nav-tab .badge.show { display: inline; }
+.nav-user {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--muted);
+}
+.nav-user strong { color: var(--white); }
+.btn-signout {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 7px;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-signout:hover { border-color: var(--error); color: var(--error); }
+
+/* ── Pages ──────────────────────────────────────────────────────────────── */
+.page { display: none; flex: 1; overflow: hidden; }
+.page.active { display: flex; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PLAY DESIGNER
+══════════════════════════════════════════════════════════════════════════ */
+#page-designer { flex-direction: row; }
+
+.designer-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 16px;
+  gap: 16px;
+}
+.sidebar-section h3 {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.sidebar-section input[type="text"],
+.sidebar-section textarea {
+  width: 100%;
+  background: var(--turf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 10px;
+  outline: none;
+  resize: vertical;
+}
+.sidebar-section input[type="text"]:focus,
+.sidebar-section textarea:focus { border-color: var(--lime); }
+
+.route-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.route-btn {
+  padding: 7px 4px;
+  background: var(--turf2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.13s;
+}
+.route-btn:hover  { border-color: var(--lime); color: var(--lime); }
+.route-btn.active { background: var(--lime); color: var(--panel); border-color: var(--lime); }
+
+.selected-player-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.color-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.color-swatch {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.12s;
+}
+.color-swatch.active { border-color: #111; }
+
+/* Draw mode toggle */
+.mode-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--turf2);
+  border-radius: var(--radius);
+  padding: 3px;
+}
+.mode-btn {
+  flex: 1;
+  padding: 6px 4px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.mode-btn.active { background: var(--lime); color: var(--panel); }
+.mode-btn.motion-active { background: #e07b00; color: #fff; }
+
+/* Snap receiver player buttons */
+.snap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.snap-btn {
+  padding: 7px 3px;
+  background: var(--turf2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.13s;
+}
+.snap-btn:hover  { border-color: #f0c040; color: #f0c040; }
+.snap-btn.active { background: #f0c040; color: #111; border-color: #f0c040; }
+
+/* Route end direction pad */
+.dir-pad-wrap { display: none; }
+.dir-pad-wrap.visible { display: block; }
+.dir-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.dir-btn {
+  aspect-ratio: 1;
+  background: var(--turf2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--white);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+  line-height: 1;
+}
+.dir-btn:hover  { border-color: var(--lime); color: var(--lime); }
+.dir-btn.active { background: var(--lime); color: var(--panel); border-color: var(--lime); }
+.dir-btn.center { background: transparent; border-color: transparent; cursor: default; font-size: 10px; color: var(--muted); }
+.break-len-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--muted);
+}
+.break-len-row input[type=range] {
+  flex: 1; accent-color: var(--lime);
+  background: transparent; border: none; padding: 0;
+}
+.break-len-val { color: var(--white); font-weight: 600; min-width: 28px; }
+
+.btn-sidebar {
+  width: 100%;
+  padding: 9px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--turf2);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.13s;
+  text-align: center;
+}
+.btn-sidebar:hover { border-color: var(--lime); color: var(--lime); }
+.btn-sidebar.primary {
+  background: var(--lime);
+  color: var(--panel);
+  border-color: var(--lime);
+}
+.btn-sidebar.primary:hover { background: var(--lime2); }
+
+.designer-canvas-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8e8e8;
+  overflow: hidden;
+  position: relative;
+}
+
+canvas#field {
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MY PLAYS
+══════════════════════════════════════════════════════════════════════════ */
+#page-plays {
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 28px 32px;
+  gap: 24px;
+}
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.page-header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 1px;
+  color: var(--lime);
+}
+.btn-action {
+  padding: 10px 20px;
+  background: var(--lime);
+  border: none;
+  border-radius: var(--radius);
+  color: var(--panel);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+.btn-action:hover { background: var(--lime2); }
+
+.plays-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.play-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.12s;
+  cursor: pointer;
+}
+.play-card:hover { border-color: var(--lime); transform: translateY(-2px); }
+.play-card canvas { width: 100%; display: block; background: #1a2e1a; }
+.play-card-info { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+.play-card-name { font-weight: 600; font-size: 14px; }
+.play-card-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.play-card-actions { display: flex; gap: 6px; }
+.btn-icon {
+  background: var(--turf2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 14px;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.btn-icon:hover { border-color: var(--lime); color: var(--lime); }
+.btn-icon.danger:hover { border-color: var(--error); color: var(--error); }
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-state h2 { font-size: 20px; color: var(--white); margin-bottom: 8px; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TEAM HUB
+══════════════════════════════════════════════════════════════════════════ */
+#page-team {
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 28px 32px;
+  gap: 24px;
+}
+.team-layout { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
+.team-card { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; margin-bottom: 24px; }
+.team-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.team-panel h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--lime);
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+.team-panel p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.form-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.form-row label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; }
+.form-row input {
+  background: var(--turf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.13s;
+}
+.form-row input:focus { border-color: var(--lime); }
+
+.member-list { display: flex; flex-direction: column; gap: 8px; }
+.member-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--turf2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.member-row .name { font-weight: 500; }
+.member-row .role { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.request-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--turf2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.request-btns { display: flex; gap: 6px; }
+.btn-approve {
+  padding: 4px 10px;
+  background: var(--lime);
+  border: none;
+  border-radius: 6px;
+  color: var(--panel);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-deny {
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.btn-deny:hover { border-color: var(--error); color: var(--error); }
+
+.status-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pill-captain  { background: rgba(184,255,71,0.15); color: var(--lime); }
+.pill-member   { background: rgba(255,255,255,0.07); color: var(--muted); }
+.pill-pending  { background: rgba(255,179,71,0.15); color: var(--warning); }
+
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--panel);
+  border: 1px solid var(--lime);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 14px;
+  color: var(--white);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.error { border-color: var(--error); }
+
+/* ── Print styles ─────────────────────────────────────────────────────── */
+@media print {
+  nav, .designer-sidebar, #page-plays, #page-team, .toast { display: none !important; }
+  body { background: white; }
+  #print-area {
+    display: block !important;
+    padding: 20px;
+  }
+  #print-area canvas { width: 100%; max-width: 700px; }
+}
+#print-area { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Print area (hidden, shown only on print) -->
+<div id="print-area">
+  <h2 id="print-title" style="font-family:sans-serif;margin-bottom:8px;"></h2>
+  <p id="print-notes" style="font-family:sans-serif;font-size:13px;color:#555;margin-bottom:12px;"></p>
+  <canvas id="print-canvas"></canvas>
+</div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">FFA Playmaker</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('designer')" id="tab-designer">✏️ Designer</button>
+    <button class="nav-tab" onclick="showPage('plays')"    id="tab-plays">📋 My Plays</button>
+    <button class="nav-tab" onclick="showPage('team')"     id="tab-team">
+      🏟️ Team Hub
+      <span class="badge" id="team-badge">0</span>
+    </button>
+  </div>
+  <div class="nav-user">
+    <span>Signed in as <strong id="user-name-display">…</strong></span>
+    <button class="btn-signout" onclick="doSignOut()">Sign out</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ PLAY DESIGNER ═══════════════ -->
+<div class="page active" id="page-designer">
+
+  <div class="designer-sidebar">
+
+    <div class="sidebar-section">
+      <h3>Play Name</h3>
+      <input type="text" id="play-name" placeholder="e.g. Flood Right" value="New Play">
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Notes</h3>
+      <textarea id="play-notes" rows="3" placeholder="Coaching notes…"></textarea>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Snap Receiver</h3>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:7px;">★ marks who gets the snap (not the centre)</div>
+      <div class="snap-grid" id="snap-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Selected Player</h3>
+      <div class="selected-player-label" id="sel-player-label">Click a player to select</div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Draw Mode</h3>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-route" onclick="setDrawMode('route')">Route</button>
+        <button class="mode-btn" id="mode-motion" onclick="setDrawMode('motion')">Motion</button>
+      </div>
+    </div>
+
+    <div id="route-section">
+      <div class="sidebar-section">
+        <h3>Route Presets</h3>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Select player, then pick a preset or click the field</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;padding:6px 8px;background:var(--turf2);border-radius:6px;line-height:1.4">
+          💡 <strong style="color:var(--white)">Click a corner waypoint</strong> to toggle smooth ○ / sharp ◇
+        </div>
+        <div class="route-grid" id="route-presets">
+          <button class="route-btn" data-route="go">Go</button>
+          <button class="route-btn" data-route="slant">Slant</button>
+          <button class="route-btn" data-route="whip">Whip</button>
+          <button class="route-btn" data-route="curl">Curl</button>
+          <button class="route-btn" data-route="out">Out</button>
+          <button class="route-btn" data-route="in">In (5y)</button>
+          <button class="route-btn" data-route="dig">Dig (10y)</button>
+          <button class="route-btn" data-route="corner">Corner</button>
+          <button class="route-btn" data-route="post">Post</button>
+          <button class="route-btn" data-route="postcorner">Post/Corner</button>
+          <button class="route-btn" data-route="cross">Cross</button>
+          <button class="route-btn" data-route="chair">Chair</button>
+          <button class="route-btn" data-route="flat">Flat</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Route Style</h3>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Locks the primary route and lets you draw a dotted option branch from its end.</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--white);cursor:pointer;font-weight:normal;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="option-route-toggle" style="accent-color:var(--lime);width:14px;height:14px;">
+          <span id="option-route-label">Draw option branch (dotted)</span>
+        </label>
+        <button id="btn-clear-option" class="btn-sidebar" style="display:none;margin-top:8px" onclick="clearOptionBranch()">Clear option branch</button>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Route Colour</h3>
+        <div class="color-row" id="color-row">
+          <div class="color-swatch active" data-color="#111111" style="background:#111111"></div>
+          <div class="color-swatch" data-color="#cc0033" style="background:#cc0033"></div>
+          <div class="color-swatch" data-color="#0077cc" style="background:#0077cc"></div>
+          <div class="color-swatch" data-color="#007a3d" style="background:#007a3d"></div>
+          <div class="color-swatch" data-color="#e05c00" style="background:#e05c00"></div>
+          <div class="color-swatch" data-color="#9b30ff" style="background:#9b30ff"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Route End Direction</h3>
+        <div class="dir-pad-wrap" id="dir-pad-wrap">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:7px;">Set which way the route breaks at the end</div>
+          <div class="dir-pad" id="dir-pad">
+            <button class="dir-btn" data-angle="-135" title="Up-Left">↖</button>
+            <button class="dir-btn" data-angle="-90"  title="Up">↑</button>
+            <button class="dir-btn" data-angle="-45"  title="Up-Right">↗</button>
+            <button class="dir-btn" data-angle="180"  title="Left">←</button>
+            <button class="dir-btn center">end</button>
+            <button class="dir-btn" data-angle="0"    title="Right">→</button>
+            <button class="dir-btn" data-angle="135"  title="Down-Left">↙</button>
+            <button class="dir-btn" data-angle="90"   title="Down">↓</button>
+            <button class="dir-btn" data-angle="45"   title="Down-Right">↘</button>
+          </div>
+          <div class="break-len-row">
+            <span>Length</span>
+            <input type="range" id="break-len" min="1" max="8" step="0.5" value="3">
+            <span class="break-len-val" id="break-len-val">3y</span>
+          </div>
+        </div>
+        <div id="dir-pad-hint" style="font-size:11px;color:var(--muted);font-style:italic">Select a player with a route to adjust the break direction</div>
+      </div>
+    </div>
+
+    <div id="motion-section" style="display:none">
+      <div class="sidebar-section">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Click the field to place motion waypoints behind the LOS. The path renders as a zig-zag.</div>
+        <button class="btn-sidebar" onclick="clearSelectedMotion()">Clear Motion</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Actions</h3>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <button class="btn-sidebar" onclick="clearSelectedRoute()">Clear Selected Route</button>
+        <button class="btn-sidebar" onclick="clearAll()">Reset Field</button>
+        <hr style="border-color:var(--border);">
+        <button class="btn-sidebar primary" onclick="savePlay()">💾 Save Play</button>
+        <button class="btn-sidebar" id="btn-save-team" onclick="savePlayToTeam()" style="display:none">🏟️ Save to Team</button>
+        <button class="btn-sidebar" onclick="printPlay()">🖨️ Print Play</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="designer-canvas-wrap">
+    <canvas id="field"></canvas>
+  </div>
+
+</div>
+
+<!-- ═══════════════ MY PLAYS ═══════════════ -->
+<div class="page" id="page-plays">
+  <div class="page-header">
+    <h1>My Plays</h1>
+    <button class="btn-action" onclick="newPlayFromLibrary()">+ New Play</button>
+  </div>
+  <div class="plays-grid" id="plays-grid">
+    <div class="empty-state">
+      <h2>No plays yet</h2>
+      <p>Head to the designer and save your first play.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ TEAM HUB ═══════════════ -->
+<div class="page" id="page-team">
+  <div class="page-header">
+    <h1 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;color:var(--lime)">Team Hub</h1>
+  </div>
+
+  <div class="team-layout">
+    <!-- Left column: create / join (always visible) + pending requests -->
+    <div>
+      <div class="team-panel" style="margin-bottom:16px">
+        <h2>Create a Team</h2>
+        <p>Start a new team — you'll be the captain.</p>
+        <div class="form-row"><label>Team Name</label><input type="text" id="new-team-name" placeholder="e.g. Flamingo Fury"></div>
+        <button class="btn-sidebar primary" onclick="createTeam()">Create Team</button>
+      </div>
+      <div class="team-panel" style="margin-bottom:16px">
+        <h2>Join a Team</h2>
+        <p>Enter a join code to send a request to the captain.</p>
+        <div class="form-row"><label>Team Code</label><input type="text" id="join-code" placeholder="6-letter code"></div>
+        <button class="btn-sidebar primary" onclick="requestJoin()">Send Request</button>
+        <div id="join-status" style="font-size:13px;margin-top:10px;color:var(--muted)"></div>
+      </div>
+      <!-- Pending requests shown here -->
+      <div id="pending-section"></div>
+    </div>
+
+    <!-- Right column: one card per team the user is on -->
+    <div id="teams-container">
+      <div class="empty-state" id="teams-empty" style="display:none">
+        <h2>Not on any teams yet</h2>
+        <p>Create a team or join one with a code.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Team picker modal for "Save to Team" -->
+<div id="team-picker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center;">
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px;min-width:300px;max-width:420px;width:90%">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--lime);margin-bottom:16px">Save to Team Playbook</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Choose which team to save this play to:</p>
+    <div id="team-picker-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+    <button class="btn-sidebar" onclick="closeTeamPicker()">Cancel</button>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="firebase-config.js"></script>
+<script type="module">
+import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged }        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, getDocs, setDoc,
+  addDoc, deleteDoc, updateDoc, collection,
+  query, where, onSnapshot, serverTimestamp, arrayUnion, arrayRemove
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════ */
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentUser   = null;
+let userDoc       = null;
+let currentPlayId = null;   // the play being edited
+let unsubPlays    = null;
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  currentUser = user;
+  document.getElementById('user-name-display').textContent = user.displayName || user.email;
+  showPage('designer');
+  try {
+    await refreshUserDoc();
+  } catch(e) {
+    console.warn('Could not load user document — Firestore rules may not be deployed yet.', e);
+    userDoc = {};
+  }
+  try { loadMyPlays(); } catch(e) { console.warn('loadMyPlays error', e); }
+  try { initTeamSection(); } catch(e) { console.warn('initTeamSection error', e); }
+});
+
+async function refreshUserDoc() {
+  const snap = await getDoc(doc(db, 'users', currentUser.uid));
+  userDoc = snap.exists() ? snap.data() : {};
+}
+
+window.doSignOut = async () => { await signOut(auth); window.location.href = 'index.html'; };
+
+/* ══════════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════════ */
+window.showPage = (name) => {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name === 'designer') requestAnimationFrame(() => resizeCanvas());
+};
+
+/* ══════════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════════ */
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type==='error' ? ' error' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+/* ══════════════════════════════════════════════════════════
+   CANVAS / FIELD
+══════════════════════════════════════════════════════════ */
+const canvas = document.getElementById('field');
+const ctx    = canvas.getContext('2d');
+
+// Field dimensions (yards) — scrimmage area only
+const FIELD_YARDS_W = 30;   // 15y each side of centre
+const FIELD_YARDS_H = 25;   // 7y behind LOS + 18y ahead
+
+let PX = 20;  // pixels per yard, recalculated on resize
+let FIELD_W, FIELD_H;
+let LOS_Y;    // y pixel of line of scrimmage
+
+// Players
+const PLAYER_ROLES = ['C','SL','WR-L','WR-R','QB'];
+let players = [];
+let routes  = {};   // playerId -> [{x,y}] in yard coords
+
+let selectedPlayerId = null;
+let routeColor = '#111111';
+let drawingMode = false;  // true when clicking to add waypoints
+let draggingPlayer = null;
+let draggingWaypoint = null; // {pid, idx}
+let unsavedChanges = false;
+let currentBreakAngle = null;  // degrees, null = no override
+let snapReceiverId = 'QB';     // who receives the snap
+let motions = {};              // playerId -> [{x,y}] zig-zag motion paths
+let currentDrawMode = 'route'; // 'route' | 'motion'
+let isOptionRoute = false;     // dotted option branch mode
+let waypointMoved = false;     // tracks whether a dragged waypoint actually moved
+
+function initPlayers() {
+  // y coords: 0 = top, FIELD_YARDS_H = bottom
+  // LOS is 10y from the bottom = FIELD_YARDS_H - 10 = 15y from top
+  const cx   = FIELD_YARDS_W / 2;  // 15
+  const losY = FIELD_YARDS_H - 10; // 15 — matches LOS_Y pixel calc
+  players = [
+    { id:'WR-L', label:'WR', x: 3,                  y: losY,     color:'#e05c00' }, // 3y from left sideline
+    { id:'SL',   label:'SL', x: (3 + cx) / 2,       y: losY,     color:'#9b30ff' }, // halfway between WR-L and C
+    { id:'C',    label:'C',  x: cx,                  y: losY,     color:'#0077cc' }, // centre
+    { id:'WR-R', label:'WR', x: FIELD_YARDS_W - 3,  y: losY,     color:'#cc0033' }, // 3y from right sideline
+    { id:'QB',   label:'QB', x: cx,                  y: losY + 7, color:'#007a3d' }, // green
+  ];
+  routes = {};
+  motions = {};
+  snapReceiverId = 'QB';
+}
+
+function resizeCanvas() {
+  const wrap = canvas.parentElement;
+  const maxW = wrap.clientWidth  - 40;
+  const maxH = wrap.clientHeight - 40;
+  PX = Math.min(Math.floor(maxW / FIELD_YARDS_W), Math.floor(maxH / FIELD_YARDS_H));
+  PX = Math.max(14, Math.min(PX, 32));
+  FIELD_W = PX * FIELD_YARDS_W;
+  FIELD_H = PX * FIELD_YARDS_H;
+  LOS_Y   = FIELD_H - PX * 10;  // LOS is 10y from the bottom
+  canvas.width  = FIELD_W;
+  canvas.height = FIELD_H;
+  render();
+}
+
+window.addEventListener('resize', resizeCanvas);
+setTimeout(resizeCanvas, 80);
+
+/* ─── Rendering ─────────────────────────────────────────────────────────── */
+function render() {
+  ctx.clearRect(0,0,FIELD_W,FIELD_H);
+  drawField();
+  drawMotions();
+  drawRoutes();
+  drawPlayers();
+}
+
+function drawField() {
+  // White turf background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, FIELD_W, FIELD_H);
+
+  // Yard lines — anchored to bottom, bold every 5y
+  for (let dist = 0; dist <= FIELD_YARDS_H; dist++) {
+    const py      = FIELD_H - dist * PX;
+    const isFive  = dist % 5 === 0;
+    ctx.strokeStyle = isFive ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.07)';
+    ctx.lineWidth   = isFive ? 1.5 : 0.5;
+    ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(FIELD_W, py); ctx.stroke();
+
+    // Yard number labels at 5y intervals
+    if (isFive && dist > 0 && dist < FIELD_YARDS_H) {
+      const yardsFromLos = dist - 10;
+      if (yardsFromLos !== 0) {
+        const label = yardsFromLos > 0 ? `+${yardsFromLos}` : `${yardsFromLos}`;
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.font = `${Math.max(9, PX * 0.5)}px DM Sans`;
+        ctx.textAlign = 'left';
+        ctx.fillText(label, 4, py - 3);
+      }
+    }
+  }
+
+  // Vertical hash marks every 5y
+  for (let x = 0; x <= FIELD_YARDS_W; x += 5) {
+    const px = x * PX;
+    ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, FIELD_H); ctx.stroke();
+  }
+
+  // LOS — bold dashed line
+  ctx.strokeStyle = 'rgba(0, 100, 200, 0.7)';
+  ctx.lineWidth = 2.5;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath(); ctx.moveTo(0, LOS_Y); ctx.lineTo(FIELD_W, LOS_Y); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // LOS label
+  ctx.fillStyle = 'rgba(0, 100, 200, 0.8)';
+  ctx.font = `bold ${Math.max(9, PX * 0.5)}px DM Sans`;
+  ctx.textAlign = 'right';
+  ctx.fillText('LOS', FIELD_W - 4, LOS_Y - 4);
+
+  // Attack direction label
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  ctx.font = `bold ${Math.max(10, PX * 0.6)}px Bebas Neue`;
+  ctx.textAlign = 'center';
+  ctx.fillText('ATTACK ↑', FIELD_W / 2, PX * 1.4);
+}
+
+/* ─── Zig-zag motion renderer ───────────────────────────────────────────── */
+function drawMotions() {
+  for (const pid of Object.keys(motions)) {
+    const pts = motions[pid];
+    if (!pts || pts.length < 2) continue;
+    const color = '#c45c00';  // amber — distinct from routes
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 2.5;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+    ctx.setLineDash([]);
+
+    // Draw zig-zag between each pair of consecutive waypoints
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x * PX, pts[0].y * PX);
+    for (let i = 1; i < pts.length; i++) {
+      const ax = pts[i-1].x * PX, ay = pts[i-1].y * PX;
+      const bx = pts[i].x   * PX, by = pts[i].y   * PX;
+      const dx = bx - ax, dy = by - ay;
+      const len = Math.sqrt(dx*dx + dy*dy);
+      if (len < 1) continue;
+      // Perpendicular unit vector
+      const nx = -dy / len, ny = dx / len;
+      const amp = Math.min(PX * 0.4, 7);  // zig-zag amplitude in pixels
+      const segs = Math.max(2, Math.round(len / (PX * 0.8)));
+      for (let s = 1; s <= segs; s++) {
+        const t   = s / segs;
+        const side = (s % 2 === 1) ? 1 : -1;
+        const mx  = ax + dx * t + nx * amp * side;
+        const my  = ay + dy * t + ny * amp * side;
+        ctx.lineTo(mx, my);
+      }
+      ctx.lineTo(bx, by);
+    }
+    ctx.stroke();
+
+    // Arrow at end
+    const last = pts[pts.length-1], prev = pts[pts.length-2];
+    drawArrow(prev.x*PX, prev.y*PX, last.x*PX, last.y*PX, color);
+
+    // "M" label at start
+    ctx.fillStyle = color;
+    ctx.font = `bold ${Math.max(8, PX * 0.45)}px DM Sans`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('M', pts[0].x * PX, pts[0].y * PX - Math.max(10, PX * 0.55) - 2);
+    ctx.textBaseline = 'alphabetic';
+    // No waypoint dots — keep the zig-zag clean
+  }
+}
+
+/* ─── Mixed path helper (per-waypoint smooth vs straight) ───────────────── */
+// Each interior waypoint carries an optional .smooth boolean.
+// smooth=true → quadratic Bezier rounding that corner (control=waypoint, end=midpoint to next)
+// smooth=false/undefined → straight lineTo (sharp corner, the default)
+function drawMixedPath(context, pts, px) {
+  context.beginPath();
+  context.moveTo(pts[0].x * px, pts[0].y * px);
+  for (let i = 1; i < pts.length; i++) {
+    if (i < pts.length - 1 && pts[i].smooth) {
+      // Smooth corner: bezier control = pts[i], end = midpoint to pts[i+1]
+      const mx = (pts[i].x + pts[i+1].x) / 2 * px;
+      const my = (pts[i].y + pts[i+1].y) / 2 * px;
+      context.quadraticCurveTo(pts[i].x * px, pts[i].y * px, mx, my);
+    } else {
+      context.lineTo(pts[i].x * px, pts[i].y * px);
+    }
+  }
+}
+
+/* ─── Route renderer — per-waypoint smooth, no corner dots ──────────────── */
+function drawRoutes() {
+  for (const pid of Object.keys(routes)) {
+    const pts = routes[pid];
+    if (!pts || pts.length < 2) {
+      if (pts && pts.length === 1) {
+        const p = pts[0];
+        ctx.fillStyle = getRouteColor(pid);
+        ctx.beginPath();
+        ctx.arc(p.x*PX, p.y*PX, 3, 0, Math.PI*2);
+        ctx.fill();
+      }
+      continue;
+    }
+    const color = getRouteColor(pid);
+    const isSel = pid === selectedPlayerId && currentDrawMode === 'route';
+
+    // Primary route
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 2.5;
+    ctx.lineJoin    = 'round';
+    ctx.lineCap     = 'round';
+    ctx.setLineDash([]);
+    drawMixedPath(ctx, pts, PX);
+    ctx.stroke();
+
+    const last = pts[pts.length-1];
+    const prev = pts[pts.length-2];
+    drawArrow(prev.x*PX, prev.y*PX, last.x*PX, last.y*PX, color);
+
+    // Option branch — dotted
+    const optPts = routes[pid].optionWaypoints;
+    if (optPts && optPts.length >= 2) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = 2.5;
+      ctx.lineJoin    = 'round';
+      ctx.lineCap     = 'round';
+      ctx.setLineDash([5, 5]);
+      drawMixedPath(ctx, optPts, PX);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const oLast = optPts[optPts.length-1];
+      const oPrev = optPts[optPts.length-2];
+      drawArrow(oPrev.x*PX, oPrev.y*PX, oLast.x*PX, oLast.y*PX, color);
+    }
+    ctx.setLineDash([]);
+
+    // Draw interior waypoint dots only when this player is selected in route mode
+    // Dot style shows whether the corner is smooth (circle) or sharp (diamond)
+    if (isSel && !isOptionRoute && pts.length > 2) {
+      for (let i = 1; i < pts.length - 1; i++) {
+        const pt  = pts[i];
+        const wpx = pt.x * PX, wpy = pt.y * PX;
+        const dotR = 5;
+        ctx.fillStyle   = color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth   = 1.5;
+        if (pt.smooth) {
+          // Circle = smooth corner
+          ctx.beginPath();
+          ctx.arc(wpx, wpy, dotR, 0, Math.PI * 2);
+          ctx.fill(); ctx.stroke();
+        } else {
+          // Diamond = sharp corner
+          ctx.beginPath();
+          ctx.moveTo(wpx,        wpy - dotR);
+          ctx.lineTo(wpx + dotR, wpy);
+          ctx.lineTo(wpx,        wpy + dotR);
+          ctx.lineTo(wpx - dotR, wpy);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+        }
+      }
+    }
+  }
+}
+
+function drawArrow(x1,y1,x2,y2,color) {
+  const angle = Math.atan2(y2-y1, x2-x1);
+  const size  = Math.max(8, PX*0.45);
+  ctx.fillStyle = color;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - size*Math.cos(angle-0.4), y2 - size*Math.sin(angle-0.4));
+  ctx.lineTo(x2 - size*Math.cos(angle+0.4), y2 - size*Math.sin(angle+0.4));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function getRouteColor(pid) {
+  if (routes[pid] && routes[pid].color) return routes[pid].color;
+  const p = players.find(p=>p.id===pid);
+  return p ? p.color : '#111111';
+}
+
+function drawPlayers() {
+  for (const p of players) {
+    const px  = p.x * PX;
+    const py  = p.y * PX;
+    const r   = Math.max(10, PX * 0.55);
+    const sel    = p.id === selectedPlayerId;
+    const isSnap = p.id === snapReceiverId;
+
+    ctx.shadowColor = sel ? p.color : 'rgba(0,0,0,0.2)';
+    ctx.shadowBlur  = sel ? 12 : 4;
+
+    if (isSnap) {
+      // Snap receiver IS the star — replaces the circle entirely
+      drawStar(px, py, r * 1.35, p.color, sel ? '#000' : 'rgba(0,0,0,0.45)');
+    } else {
+      // Regular filled circle
+      ctx.fillStyle   = p.color;
+      ctx.strokeStyle = sel ? '#000' : 'rgba(0,0,0,0.35)';
+      ctx.lineWidth   = sel ? 2.5 : 1.5;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    ctx.shadowBlur = 0;
+
+    // Label always on top in white
+    ctx.fillStyle    = '#ffffff';
+    ctx.font         = `bold ${Math.max(8, PX * 0.42)}px DM Sans`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.label, px, py);
+    ctx.textBaseline = 'alphabetic';
+  }
+}
+
+function drawStar(cx, cy, r, fill, stroke) {
+  const spikes = 5;
+  const inner  = r * 0.45;
+  ctx.beginPath();
+  for (let i = 0; i < spikes * 2; i++) {
+    const angle  = (i * Math.PI / spikes) - Math.PI / 2;
+    const radius = i % 2 === 0 ? r : inner;
+    const x = cx + Math.cos(angle) * radius;
+    const y = cy + Math.sin(angle) * radius;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle   = fill;
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth   = 1;
+  ctx.fill();
+  ctx.stroke();
+}
+
+/* ─── Canvas interaction ────────────────────────────────────────────────── */
+function canvasPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * (canvas.width  / rect.width)  / PX,
+    y: (clientY - rect.top)  * (canvas.height / rect.height) / PX
+  };
+}
+
+function hitPlayer(pos) {
+  for (const p of players) {
+    const r = Math.max(10, PX*0.55) / PX;
+    if (dist(pos, p) < r + 0.5) return p;
+  }
+  return null;
+}
+
+function hitWaypoint(pos, pid) {
+  // Check motion waypoints first if in motion mode
+  const collection = currentDrawMode === 'motion' ? motions : routes;
+  const pts = collection[pid];
+  if (!pts) return -1;
+  const r = 7 / PX;
+  for (let i = 0; i < pts.length; i++) {
+    if (dist(pos, pts[i]) < r) return i;
+  }
+  return -1;
+}
+
+function dist(a, b) { return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2); }
+
+canvas.addEventListener('mousedown',  onDown);
+canvas.addEventListener('touchstart', onDown, {passive:false});
+canvas.addEventListener('mousemove',  onMove);
+canvas.addEventListener('touchmove',  onMove, {passive:false});
+canvas.addEventListener('mouseup',    onUp);
+canvas.addEventListener('touchend',   onUp);
+
+function onDown(e) {
+  e.preventDefault();
+  const pos = canvasPos(e);
+
+  // Check for waypoint drag first (if a player is selected)
+  if (selectedPlayerId) {
+    const wIdx = hitWaypoint(pos, selectedPlayerId);
+    if (wIdx >= 0) {
+      draggingWaypoint = { pid: selectedPlayerId, idx: wIdx };
+      waypointMoved = false;
+      return;
+    }
+  }
+
+  // Check for player hit
+  const p = hitPlayer(pos);
+  if (p) {
+    selectPlayer(p.id);
+    draggingPlayer = p;
+    drawingMode = false;
+    return;
+  }
+
+  // Click empty space — add waypoint in current draw mode
+  if (selectedPlayerId && drawingMode) {
+    currentDrawMode === 'motion' ? addMotionWaypoint(pos) : addWaypoint(pos);
+    return;
+  }
+
+  if (selectedPlayerId) {
+    drawingMode = true;
+    currentDrawMode === 'motion' ? addMotionWaypoint(pos) : addWaypoint(pos);
+  }
+}
+
+function onMove(e) {
+  e.preventDefault();
+  const pos = canvasPos(e);
+  if (draggingPlayer) {
+    draggingPlayer.x = Math.max(0, Math.min(FIELD_YARDS_W, pos.x));
+    draggingPlayer.y = Math.max(0, Math.min(FIELD_YARDS_H, pos.y));
+    if (routes[draggingPlayer.id] && routes[draggingPlayer.id].length > 0) {
+      routes[draggingPlayer.id][0] = { x: draggingPlayer.x, y: draggingPlayer.y };
+    }
+    if (motions[draggingPlayer.id] && motions[draggingPlayer.id].length > 0) {
+      motions[draggingPlayer.id][0] = { x: draggingPlayer.x, y: draggingPlayer.y };
+    }
+    unsavedChanges = true;
+    render();
+  }
+  if (draggingWaypoint) {
+    const collection = currentDrawMode === 'motion' ? motions : routes;
+    const losYards = FIELD_YARDS_H - 10;
+    const clampedY = currentDrawMode === 'motion'
+      ? Math.max(losYards, Math.min(FIELD_YARDS_H, pos.y))
+      : Math.max(0, Math.min(FIELD_YARDS_H, pos.y));
+    const existing = collection[draggingWaypoint.pid][draggingWaypoint.idx];
+    // Preserve .smooth when repositioning — only update x/y
+    collection[draggingWaypoint.pid][draggingWaypoint.idx] = {
+      x:      Math.max(0, Math.min(FIELD_YARDS_W, pos.x)),
+      y:      clampedY,
+      smooth: existing ? existing.smooth : false
+    };
+    waypointMoved = true;
+    unsavedChanges = true;
+    render();
+  }
+}
+
+function onUp() {
+  // If a waypoint was grabbed but not moved, treat it as a click → toggle smooth
+  if (draggingWaypoint && !waypointMoved && currentDrawMode === 'route') {
+    const { pid, idx } = draggingWaypoint;
+    const rt = routes[pid];
+    // Only interior waypoints can be smoothed (not first or last)
+    if (rt && idx > 0 && idx < rt.length - 1) {
+      rt[idx].smooth = !rt[idx].smooth;
+      unsavedChanges = true;
+      toast(rt[idx].smooth ? 'Corner smoothed ○' : 'Corner snapped ◇');
+      render();
+    }
+  }
+  draggingPlayer   = null;
+  draggingWaypoint = null;
+  waypointMoved    = false;
+}
+
+function selectPlayer(id) {
+  selectedPlayerId = id;
+  drawingMode = false;
+  currentBreakAngle = null;
+  const p = players.find(p=>p.id===id);
+  document.getElementById('sel-player-label').textContent = p ? `${p.label} (${p.id})` : 'None';
+  // Restore option mode state for this player
+  isOptionRoute = false;
+  document.getElementById('option-route-toggle').checked = false;
+  updateOptionLabel();
+  updateDirPad();
+  render();
+}
+
+function addWaypoint(pos) {
+  if (!selectedPlayerId) return;
+
+  if (isOptionRoute) {
+    // Option mode — add to the option branch only, primary is locked
+    const rt = routes[selectedPlayerId];
+    if (!rt) { toast('Draw a primary route first', 'error'); return; }
+    if (!rt.optionWaypoints) {
+      const end = rt[rt.length - 1];
+      rt.optionWaypoints = [{ x: end.x, y: end.y }];
+    }
+    rt.optionWaypoints.push({ x: pos.x, y: pos.y });
+    unsavedChanges = true;
+    updateDirPad();
+    updateOptionLabel();
+    render();
+    return;
+  }
+
+  // Normal mode — add to primary route
+  if (!routes[selectedPlayerId]) {
+    const origin = routeOrigin(selectedPlayerId);
+    routes[selectedPlayerId] = [{ x: origin.x, y: origin.y }];
+    routes[selectedPlayerId].color = routeColor;
+    routes[selectedPlayerId].optionWaypoints = null;
+  }
+  routes[selectedPlayerId].push({ x: pos.x, y: pos.y });
+  routes[selectedPlayerId].color = routeColor;
+  unsavedChanges = true;
+  updateDirPad();
+  render();
+}
+
+function addMotionWaypoint(pos) {
+  if (!selectedPlayerId) return;
+  // Clamp to behind LOS (y >= LOS in yard coords)
+  const losYards = FIELD_YARDS_H - 10;
+  const clampedY = Math.max(losYards, Math.min(FIELD_YARDS_H, pos.y));
+  if (!motions[selectedPlayerId]) {
+    const p = players.find(p=>p.id===selectedPlayerId);
+    motions[selectedPlayerId] = [{ x: p.x, y: p.y }];
+  }
+  motions[selectedPlayerId].push({ x: pos.x, y: clampedY });
+  unsavedChanges = true;
+  render();
+}
+
+/* ─── Draw mode ──────────────────────────────────────────────────────────── */
+window.setDrawMode = (mode) => {
+  currentDrawMode = mode;
+  drawingMode = false;
+  document.getElementById('mode-route').className  = 'mode-btn' + (mode === 'route'  ? ' active' : '');
+  document.getElementById('mode-motion').className = 'mode-btn' + (mode === 'motion' ? ' motion-active' : '');
+  document.getElementById('route-section').style.display  = mode === 'route'  ? '' : 'none';
+  document.getElementById('motion-section').style.display = mode === 'motion' ? '' : 'none';
+};
+
+/* ─── Snap receiver ──────────────────────────────────────────────────────── */
+function buildSnapGrid() {
+  const grid = document.getElementById('snap-grid');
+  grid.innerHTML = '';
+  players.filter(p => p.id !== 'C').forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'snap-btn' + (p.id === snapReceiverId ? ' active' : '');
+    btn.textContent = p.label + '\u00a0(' + p.id.replace('WR-','') + ')';
+    btn.style.borderColor = p.color;
+    if (p.id === snapReceiverId) btn.style.background = '#f0c040';
+    btn.addEventListener('click', () => {
+      snapReceiverId = p.id;
+      unsavedChanges = true;
+      buildSnapGrid();
+      render();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+/* ─── Option route toggle ────────────────────────────────────────────────── */
+document.getElementById('option-route-toggle').addEventListener('change', function() {
+  isOptionRoute = this.checked;
+
+  if (!selectedPlayerId) return;
+
+  if (isOptionRoute) {
+    // Must have a primary route to branch from
+    if (!routes[selectedPlayerId] || routes[selectedPlayerId].length < 2) {
+      toast('Draw a primary route first', 'error');
+      this.checked = false;
+      isOptionRoute = false;
+      return;
+    }
+    // Seed option branch from the end of the primary route (if not already started)
+    const rt = routes[selectedPlayerId];
+    if (!rt.optionWaypoints || rt.optionWaypoints.length < 1) {
+      const end = rt[rt.length - 1];
+      rt.optionWaypoints = [{ x: end.x, y: end.y }];
+    }
+    drawingMode = false;
+    toast('Option mode — draw or pick a preset for the dotted branch');
+  } else {
+    // Leaving option mode — keep whatever was drawn, reset drawing
+    drawingMode = false;
+  }
+
+  unsavedChanges = true;
+  updateOptionLabel();
+  updateDirPad();
+  render();
+});
+
+function updateOptionLabel() {
+  const lbl = document.getElementById('option-route-label');
+  if (lbl) {
+    lbl.textContent = isOptionRoute
+      ? 'Drawing option branch ✓ (dotted)'
+      : 'Draw option branch (dotted)';
+    lbl.style.color = isOptionRoute ? '#b8ff47' : '';
+  }
+  // Show/hide clear option btn
+  const clearOptBtn = document.getElementById('btn-clear-option');
+  if (clearOptBtn) {
+    const hasOpt = selectedPlayerId && routes[selectedPlayerId] && routes[selectedPlayerId].optionWaypoints && routes[selectedPlayerId].optionWaypoints.length > 1;
+    clearOptBtn.style.display = hasOpt ? '' : 'none';
+  }
+}
+
+/* ─── Clear motion ───────────────────────────────────────────────────────── */
+window.clearSelectedMotion = () => {
+  if (!selectedPlayerId) { toast('Select a player first', 'error'); return; }
+  delete motions[selectedPlayerId];
+  drawingMode = false;
+  unsavedChanges = true;
+  render();
+  toast('Motion cleared');
+};
+
+/* ─── Route presets ─────────────────────────────────────────────────────── */
+document.querySelectorAll('.route-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!selectedPlayerId) { toast('Select a player first', 'error'); return; }
+    document.querySelectorAll('.route-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    applyPresetRoute(btn.dataset.route);
+    setTimeout(() => btn.classList.remove('active'), 600);
+  });
+});
+
+function applyPresetRoute(type) {
+  const p = players.find(p=>p.id===selectedPlayerId);
+  if (!p) return;
+  const isLeft = p.x < FIELD_YARDS_W / 2;
+  // In option mode, branch starts from the end of the primary route
+  const origin = (isOptionRoute && routes[selectedPlayerId] && routes[selectedPlayerId].length >= 1)
+    ? routes[selectedPlayerId][routes[selectedPlayerId].length - 1]
+    : routeOrigin(selectedPlayerId);
+  const sx = origin.x, sy = origin.y;
+  const d = isLeft ? -1 : 1;
+
+  let pts;
+  switch(type) {
+    case 'go':
+      // Straight vertical fly
+      pts = [{x:sx,y:sy},{x:sx,y:sy-10}]; break;
+    case 'slant':
+      // Short stem then flat break inward
+      pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*6,y:sy-4}]; break;
+    case 'whip':
+      // Slant inward then snap flat back out to the sideline
+      pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*4,y:sy-5},{x:sx+d*4,y:sy-5}]; break;
+    case 'curl':
+      // Run up then curl back toward QB
+      pts = [{x:sx,y:sy},{x:sx,y:sy-6},{x:sx+d*1,y:sy-4}]; break;
+    case 'out':
+      // Stem then flat break to sideline
+      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*5,y:sy-5}]; break;
+    case 'in':
+      // 5y stem then break hard inward
+      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*5,y:sy-5}]; break;
+    case 'dig':
+      // 10y stem then break hard inward (deeper than in)
+      pts = [{x:sx,y:sy},{x:sx,y:sy-10},{x:sx-d*6,y:sy-10}]; break;
+    case 'corner':
+      // Stem then break toward the corner of the end zone (outward+up)
+      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-9}]; break;
+    case 'post':
+      // Stem then break toward the goalpost (inward+up)
+      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*4,y:sy-10}]; break;
+    case 'postcorner':
+      // Post fake then break back out to corner (double-cut)
+      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*3,y:sy-8},{x:sx+d*3,y:sy-12}]; break;
+    case 'cross':
+      // Short stem then run across the middle
+      pts = [{x:sx,y:sy},{x:sx,y:sy-2},{x:sx-d*8,y:sy-2}]; break;
+    case 'chair':
+      // Up, flat out to sideline at 5y, then vertical upfield
+      pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-5},{x:sx+d*4,y:sy-12}]; break;
+    case 'flat':
+      // Straight release to 3y from the nearest sideline, 1y upfield
+      pts = [{x:sx,y:sy},{x:(isLeft ? 3 : FIELD_YARDS_W - 3), y:sy-1}]; break;
+    default:
+      pts = [{x:sx,y:sy},{x:sx,y:sy-8}];
+  }
+  // Clamp all points within field
+  pts = pts.map(pt=>({
+    x: Math.max(0.5, Math.min(FIELD_YARDS_W-0.5, pt.x)),
+    y: Math.max(0.5, Math.min(FIELD_YARDS_H-0.5, pt.y))
+  }));
+
+  if (isOptionRoute) {
+    // Write preset as the option branch — primary route is unchanged
+    if (!routes[selectedPlayerId]) return;
+    routes[selectedPlayerId].optionWaypoints = pts;
+  } else {
+    // Write preset as the primary route — clear any existing option branch
+    routes[selectedPlayerId] = pts;
+    routes[selectedPlayerId].color = routeColor;
+    routes[selectedPlayerId].optionWaypoints = null;
+  }
+
+  currentBreakAngle = null;
+  unsavedChanges = true;
+  updateDirPad();
+  updateOptionLabel();
+  render();
+  toast(isOptionRoute ? `Option: ${type} applied` : `${type} route applied`);
+}
+
+/* ─── Route end direction pad ───────────────────────────────────────────── */
+function updateDirPad() {
+  const wrap = document.getElementById('dir-pad-wrap');
+  const hint = document.getElementById('dir-pad-hint');
+  const rt = selectedPlayerId && routes[selectedPlayerId];
+  const hasRoute = isOptionRoute
+    ? !!(rt && rt.optionWaypoints && rt.optionWaypoints.length >= 2)
+    : !!(rt && rt.length >= 2);
+  wrap.classList.toggle('visible', hasRoute);
+  hint.style.display = hasRoute ? 'none' : '';
+
+  document.querySelectorAll('.dir-btn[data-angle]').forEach(b => {
+    b.classList.toggle('active', currentBreakAngle !== null && Number(b.dataset.angle) === currentBreakAngle);
+  });
+}
+
+// Direction buttons
+document.querySelectorAll('.dir-btn[data-angle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!selectedPlayerId || !routes[selectedPlayerId] || routes[selectedPlayerId].length < 2) return;
+    const angle = Number(btn.dataset.angle);
+    if (currentBreakAngle === angle) {
+      // Toggle off — remove the directional override
+      currentBreakAngle = null;
+      updateDirPad();
+      render();
+      return;
+    }
+    currentBreakAngle = angle;
+    applyBreakDirection();
+    updateDirPad();
+  });
+});
+
+// Break length slider
+const breakLenSlider = document.getElementById('break-len');
+const breakLenVal    = document.getElementById('break-len-val');
+breakLenSlider.addEventListener('input', () => {
+  breakLenVal.textContent = breakLenSlider.value + 'y';
+  if (currentBreakAngle !== null) applyBreakDirection();
+});
+
+function applyBreakDirection() {
+  if (!selectedPlayerId) return;
+  const rt = routes[selectedPlayerId];
+  if (!rt) return;
+
+  // In option mode, operate on the option branch; otherwise on primary
+  const pts = isOptionRoute
+    ? (rt.optionWaypoints && rt.optionWaypoints.length >= 2 ? rt.optionWaypoints : null)
+    : (rt.length >= 2 ? rt : null);
+  if (!pts) return;
+
+  const len     = Number(breakLenSlider.value);
+  const radians = (currentBreakAngle * Math.PI) / 180;
+  const elbow   = pts[pts.length - 2];
+
+  pts[pts.length - 1] = {
+    x: Math.max(0.5, Math.min(FIELD_YARDS_W - 0.5, elbow.x + Math.cos(radians) * len)),
+    y: Math.max(0.5, Math.min(FIELD_YARDS_H - 0.5, elbow.y + Math.sin(radians) * len))
+  };
+  unsavedChanges = true;
+  render();
+}
+document.querySelectorAll('.color-swatch').forEach(sw => {
+  sw.addEventListener('click', () => {
+    document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+    sw.classList.add('active');
+    routeColor = sw.dataset.color;
+    if (selectedPlayerId && routes[selectedPlayerId]) {
+      routes[selectedPlayerId].color = routeColor;
+      render();
+    }
+  });
+});
+
+/* ─── Clear / Reset ─────────────────────────────────────────────────────── */
+window.clearSelectedRoute = () => {
+  if (!selectedPlayerId) { toast('Select a player first', 'error'); return; }
+  delete routes[selectedPlayerId];
+  drawingMode = false;
+  currentBreakAngle = null;
+  isOptionRoute = false;
+  document.getElementById('option-route-toggle').checked = false;
+  unsavedChanges = true;
+  updateDirPad();
+  updateOptionLabel();
+  render();
+  toast('Route cleared');
+};
+
+window.clearAll = () => {
+  if (!confirm('Reset the field to defaults?')) return;
+  initPlayers();
+  selectedPlayerId = null;
+  currentPlayId = null;
+  currentBreakAngle = null;
+  unsavedChanges = false;
+  isOptionRoute = false;
+  document.getElementById('play-name').value = 'New Play';
+  document.getElementById('play-notes').value = '';
+  document.getElementById('sel-player-label').textContent = 'Click a player to select';
+  document.getElementById('option-route-toggle').checked = false;
+  buildSnapGrid();
+  updateDirPad();
+  updateOptionLabel();
+  render();
+};
+
+window.newPlay = () => {
+  initPlayers();
+  selectedPlayerId = null;
+  currentPlayId = null;
+  currentBreakAngle = null;
+  unsavedChanges = false;
+  isOptionRoute = false;
+  document.getElementById('play-name').value = 'New Play';
+  document.getElementById('play-notes').value = '';
+  document.getElementById('sel-player-label').textContent = 'Click a player to select';
+  document.getElementById('option-route-toggle').checked = false;
+  buildSnapGrid();
+  updateDirPad();
+  updateOptionLabel();
+  render();
+};
+
+window.clearOptionBranch = () => {
+  if (!selectedPlayerId || !routes[selectedPlayerId]) {
+    toast('Select a player with a route first', 'error'); return;
+  }
+  routes[selectedPlayerId].optionWaypoints = null;
+  isOptionRoute = false;
+  document.getElementById('option-route-toggle').checked = false;
+  drawingMode = false;
+  unsavedChanges = true;
+  updateDirPad();
+  updateOptionLabel();
+  render();
+  toast('Option branch cleared');
+};
+
+// Called from My Plays "New Play" button — guards unsaved work
+window.newPlayFromLibrary = () => {
+  if (unsavedChanges) {
+    const go = confirm('You have unsaved changes on the current play. Discard and start a new play?');
+    if (!go) return;
+  }
+  showPage('designer');
+  newPlay();
+};
+
+/* ══════════════════════════════════════════════════════════
+   SERIALISE / DESERIALISE PLAY
+══════════════════════════════════════════════════════════ */
+function serialisePlay() {
+  const serialisedRoutes = {};
+  for (const pid of Object.keys(routes)) {
+    const pts = routes[pid];
+    serialisedRoutes[pid] = {
+      color:    pts.color  || '#111111',
+      option:   pts.option || false,
+      waypoints: pts.map(pt => ({ x: pt.x, y: pt.y, smooth: pt.smooth || false }))
+    };
+  }
+  const serialisedMotions = {};
+  for (const pid of Object.keys(motions)) {
+    serialisedMotions[pid] = motions[pid].map(pt => ({ x: pt.x, y: pt.y }));
+  }
+  return {
+    name:           document.getElementById('play-name').value.trim() || 'Untitled',
+    notes:          document.getElementById('play-notes').value.trim(),
+    players:        players.map(p => ({...p})),
+    routes:         serialisedRoutes,
+    motions:        serialisedMotions,
+    snapReceiverId: snapReceiverId,
+    thumbnail:      canvas.toDataURL('image/png', 0.6),
+    updatedAt:      serverTimestamp()
+  };
+}
+
+function deserialisePlay(data) {
+  players = data.players.map(p=>({...p}));
+  routes  = {};
+  motions = {};
+  snapReceiverId = data.snapReceiverId || 'QB';
+  if (data.routes) {
+    for (const pid of Object.keys(data.routes)) {
+      const r = data.routes[pid];
+      if (Array.isArray(r)) {
+        routes[pid] = r.map(pt => ({ x: pt.x, y: pt.y }));
+        routes[pid].color  = '#111111';
+        routes[pid].option = false;
+      } else {
+        routes[pid] = (r.waypoints || []).map(pt => ({ x: pt.x, y: pt.y, smooth: pt.smooth || false }));
+        routes[pid].color  = r.color  || '#111111';
+        routes[pid].option = r.option || false;
+      }
+    }
+  }
+  if (data.motions) {
+    for (const pid of Object.keys(data.motions)) {
+      motions[pid] = data.motions[pid].map(pt => ({ x: pt.x, y: pt.y }));
+    }
+  }
+  document.getElementById('play-name').value  = data.name  || '';
+  document.getElementById('play-notes').value = data.notes || '';
+  selectedPlayerId = null;
+  currentBreakAngle = null;
+  unsavedChanges = false;
+  isOptionRoute = false;
+  document.getElementById('option-route-toggle').checked = false;
+  buildSnapGrid();
+  updateDirPad();
+  updateOptionLabel();
+  render();
+}
+window.savePlay = async () => {
+  if (!currentUser) return;
+  const data = serialisePlay();
+  data.ownerId = currentUser.uid;
+  try {
+    if (currentPlayId) {
+      await setDoc(doc(db,'plays',currentPlayId), data);
+      unsavedChanges = false;
+      toast('Play updated');
+    } else {
+      const ref = await addDoc(collection(db,'plays'), data);
+      currentPlayId = ref.id;
+      unsavedChanges = false;
+      toast('Play saved');
+    }
+  } catch(e) { toast('Error saving play', 'error'); console.error(e); }
+};
+
+function loadMyPlays() {
+  if (!currentUser) return;
+  if (unsubPlays) unsubPlays();
+  const q = query(collection(db,'plays'), where('ownerId','==',currentUser.uid));
+  unsubPlays = onSnapshot(q, snap => {
+    const grid = document.getElementById('plays-grid');
+    if (snap.empty) {
+      grid.innerHTML = `<div class="empty-state"><h2>No plays yet</h2><p>Head to the designer and save your first play.</p></div>`;
+      return;
+    }
+    grid.innerHTML = '';
+    snap.docs.sort((a,b)=>{
+      const ta = a.data().updatedAt?.seconds || 0;
+      const tb = b.data().updatedAt?.seconds || 0;
+      return tb - ta;
+    }).forEach(d => renderPlayCard(grid, d.id, d.data(), false));
+  });
+}
+
+function renderPlayCard(grid, id, data, isTeam) {
+  const card = document.createElement('div');
+  card.className = 'play-card';
+
+  // Thumbnail
+  if (data.thumbnail) {
+    const img = document.createElement('img');
+    img.src = data.thumbnail;
+    img.style.cssText = 'width:100%;display:block;';
+    card.appendChild(img);
+  }
+
+  const info = document.createElement('div');
+  info.className = 'play-card-info';
+  info.innerHTML = `
+    <div>
+      <div class="play-card-name">${escHtml(data.name||'Untitled')}</div>
+      <div class="play-card-meta">${data.notes ? escHtml(data.notes.substring(0,40))+'…' : 'No notes'}</div>
+    </div>
+    <div class="play-card-actions">
+      <button class="btn-icon" title="Edit">✏️</button>
+      <button class="btn-icon" title="Print">🖨️</button>
+      ${!isTeam ? `<button class="btn-icon danger" title="Delete">🗑️</button>` : ''}
+    </div>`;
+  card.appendChild(info);
+
+  const [editBtn, printBtn, delBtn] = info.querySelectorAll('.btn-icon');
+
+  editBtn.addEventListener('click', e => { e.stopPropagation();
+    deserialisePlay(data);
+    currentPlayId = isTeam ? null : id;
+    showPage('designer');
+    toast(`Editing "${data.name}"`);
+  });
+
+  printBtn.addEventListener('click', e => { e.stopPropagation(); printPlayData(data); });
+
+  if (!isTeam && delBtn) {
+    delBtn.addEventListener('click', e => { e.stopPropagation();
+      if (confirm(`Delete "${data.name}"?`)) deleteDoc(doc(db,'plays',id)).then(()=>toast('Deleted'));
+    });
+  }
+
+  card.addEventListener('click', () => {
+    deserialisePlay(data);
+    currentPlayId = isTeam ? null : id;
+    showPage('designer');
+  });
+
+  grid.appendChild(card);
+}
+
+/* ══════════════════════════════════════════════════════════
+   PRINT
+══════════════════════════════════════════════════════════ */
+function printPlayData(data) {
+  // Re-render to print canvas at fixed size
+  const pc = document.getElementById('print-canvas');
+  const w = 700, h = Math.round(700 * (FIELD_YARDS_H / FIELD_YARDS_W));
+  pc.width = w; pc.height = h;
+  const pctx = pc.getContext('2d');
+  const savedCtx = ctx;
+  const savedPX  = PX;
+  const savedW   = FIELD_W;
+  const savedH   = FIELD_H;
+  const savedLos = LOS_Y;
+
+  // Temporarily redirect globals for render
+  PX = Math.floor(w / FIELD_YARDS_W);
+  FIELD_W = PX * FIELD_YARDS_W;
+  FIELD_H = PX * FIELD_YARDS_H;
+  LOS_Y   = FIELD_H - PX * 10;  // LOS is 10y from bottom
+
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = FIELD_W; tmpCanvas.height = FIELD_H;
+  const tmpCtx = tmpCanvas.getContext('2d');
+
+  // Swap context
+  const _ctx = window.__ctx = ctx;
+  // Inline render for print canvas
+  deserialisePlay(data);
+  PX = savedPX; FIELD_W = savedW; FIELD_H = savedH; LOS_Y = savedLos;
+
+  document.getElementById('print-title').textContent = data.name || 'Play';
+  document.getElementById('print-notes').textContent = data.notes || '';
+
+  window.print();
+}
+
+window.printPlay = () => { printPlayData(serialisePlay()); };
+
+/* ══════════════════════════════════════════════════════════
+   TEAM HUB
+══════════════════════════════════════════════════════════ */
+// currentTeams: array of {id, ...teamData} for teams the user is on
+let currentTeams = [];
+// unsubscribe maps keyed by teamId
+const unsubRequestsMap  = new Map();
+const unsubTeamPlaysMap = new Map();
+
+async function initTeamSection() {
+  await refreshUserDoc();
+  currentTeams = [];
+
+  // Unsubscribe any existing listeners
+  unsubRequestsMap.forEach(fn => fn());  unsubRequestsMap.clear();
+  unsubTeamPlaysMap.forEach(fn => fn()); unsubTeamPlaysMap.clear();
+
+  const teamIds        = userDoc.teamIds        || (userDoc.teamId        ? [userDoc.teamId]        : []);
+  const pendingTeamIds = userDoc.pendingTeamIds  || (userDoc.pendingTeamId ? [userDoc.pendingTeamId] : []);
+
+  // Render pending requests
+  await renderPendingSection(pendingTeamIds);
+
+  // Render each team the user is on
+  const container = document.getElementById('teams-container');
+  const emptyMsg  = document.getElementById('teams-empty');
+  // Clear existing team cards (but keep the empty message element)
+  container.querySelectorAll('.team-card').forEach(el => el.remove());
+
+  if (teamIds.length === 0) {
+    emptyMsg.style.display = '';
+    document.getElementById('btn-save-team').style.display = 'none';
+  } else {
+    emptyMsg.style.display = 'none';
+    for (const teamId of teamIds) {
+      await renderTeamCard(teamId, container);
+    }
+    document.getElementById('btn-save-team').style.display = '';
+  }
+}
+
+async function renderPendingSection(pendingTeamIds) {
+  const section = document.getElementById('pending-section');
+  section.innerHTML = '';
+  for (const teamId of pendingTeamIds) {
+    const snap = await getDoc(doc(db,'teams',teamId));
+    if (!snap.exists()) continue;
+    const panel = document.createElement('div');
+    panel.className = 'team-panel';
+    panel.style.marginBottom = '16px';
+    panel.innerHTML = `
+      <h2>Request Pending</h2>
+      <p>Your request to join <strong>${escHtml(snap.data().name)}</strong> is awaiting captain approval.</p>
+      <button class="btn-sidebar" style="max-width:200px;margin-top:8px">Cancel Request</button>`;
+    panel.querySelector('button').addEventListener('click', () => cancelJoinRequest(teamId));
+    section.appendChild(panel);
+  }
+}
+
+async function renderTeamCard(teamId, container) {
+  const snap = await getDoc(doc(db,'teams',teamId));
+  if (!snap.exists()) {
+    // Team gone — silently remove from user's list
+    await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayRemove(teamId) }, { merge: true });
+    return;
+  }
+  const team = { id: teamId, ...snap.data() };
+  currentTeams.push(team);
+  const isCaptain = team.captainId === currentUser.uid;
+
+  const card = document.createElement('div');
+  card.className = 'team-card';
+  card.dataset.teamId = teamId;
+  card.innerHTML = `
+    <div class="team-panel" style="margin-bottom:16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <h2 style="margin-bottom:6px">${escHtml(team.name)}</h2>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:12px;color:var(--muted)">Code:</span>
+            <code class="team-code" style="font-size:16px;letter-spacing:3px;color:var(--lime);font-weight:700">${escHtml(team.code)}</code>
+            <button class="btn-icon copy-code-btn" title="Copy code">📋</button>
+          </div>
+        </div>
+        <span class="status-pill ${isCaptain?'pill-captain':'pill-member'}">${isCaptain?'Captain':'Member'}</span>
+      </div>
+
+      ${isCaptain ? `
+      <div class="requests-area" style="margin-bottom:12px;display:none">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">
+          Join Requests <span class="req-count"></span>
+        </div>
+        <div class="requests-list member-list"></div>
+      </div>` : ''}
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Members</div>
+      <div class="members-list member-list" style="margin-bottom:12px"></div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-sidebar save-here-btn" style="max-width:160px">💾 Save Play Here</button>
+        ${!isCaptain ? `<button class="btn-sidebar leave-btn" style="max-width:140px;color:var(--error);border-color:var(--error)">Leave Team</button>` : ''}
+      </div>
+    </div>
+
+    <div>
+      <div class="page-header" style="margin-bottom:12px">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--lime)">Playbook — ${escHtml(team.name)}</span>
+        <button class="btn-action add-play-btn">+ Add Play</button>
+      </div>
+      <div class="plays-grid team-plays-grid"></div>
+    </div>
+  `;
+
+  // Copy code
+  card.querySelector('.copy-code-btn').addEventListener('click', () => {
+    navigator.clipboard.writeText(team.code).then(() => toast('Team code copied!'));
+  });
+
+  // Save play to this team directly
+  card.querySelector('.save-here-btn').addEventListener('click', () => savePlayToSpecificTeam(teamId));
+
+  // Leave team
+  const leaveBtn = card.querySelector('.leave-btn');
+  if (leaveBtn) leaveBtn.addEventListener('click', () => leaveTeam(teamId));
+
+  // Add play (go to designer)
+  card.querySelector('.add-play-btn').addEventListener('click', () => showPage('designer'));
+
+  container.appendChild(card);
+
+  // Load members
+  loadMembersForCard(card, team);
+
+  // Subscribe to join requests (captain only)
+  if (isCaptain) subscribeRequestsForCard(card, teamId);
+
+  // Subscribe to team plays
+  subscribeTeamPlaysForCard(card, teamId);
+}
+
+async function loadMembersForCard(card, team) {
+  const list = card.querySelector('.members-list');
+  list.innerHTML = '';
+  for (const uid of (team.memberIds || [])) {
+    const usnap = await getDoc(doc(db,'users',uid));
+    const udata = usnap.exists() ? usnap.data() : { displayName: uid };
+    const isCap = uid === team.captainId;
+    const row = document.createElement('div');
+    row.className = 'member-row';
+    row.innerHTML = `
+      <div>
+        <div class="name">${escHtml(udata.displayName||uid)}</div>
+        <div class="role">${udata.email||''}</div>
+      </div>
+      <span class="status-pill ${isCap?'pill-captain':'pill-member'}">${isCap?'Captain':'Member'}</span>`;
+    list.appendChild(row);
+  }
+}
+
+function subscribeRequestsForCard(card, teamId) {
+  const q = query(collection(db,'teams',teamId,'joinRequests'), where('status','==','pending'));
+  const unsub = onSnapshot(q, snap => {
+    const area    = card.querySelector('.requests-area');
+    const list    = card.querySelector('.requests-list');
+    const countEl = card.querySelector('.req-count');
+    const count   = snap.size;
+
+    area.style.display = count > 0 ? '' : 'none';
+    countEl.textContent = count ? `(${count})` : '';
+
+    // Update total badge on nav tab
+    let total = 0;
+    unsubRequestsMap.forEach(() => {}); // just iterate to count
+    document.querySelectorAll('.team-card').forEach(c => {
+      total += c.querySelectorAll('.request-row').length;
+    });
+    // Re-count properly after render
+    setTimeout(() => {
+      let t = 0;
+      document.querySelectorAll('.request-row').length && (t = document.querySelectorAll('.request-row').length);
+      document.getElementById('team-badge').textContent = t;
+      document.getElementById('team-badge').classList.toggle('show', t > 0);
+    }, 0);
+
+    list.innerHTML = '';
+    snap.forEach(d => {
+      const data = d.data();
+      const row  = document.createElement('div');
+      row.className = 'request-row';
+      row.innerHTML = `
+        <div>
+          <div class="name">${escHtml(data.displayName||d.id)}</div>
+          <div class="role">${escHtml(data.email||'')}</div>
+        </div>
+        <div class="request-btns">
+          <button class="btn-approve">Approve</button>
+          <button class="btn-deny">Deny</button>
+        </div>`;
+      row.querySelector('.btn-approve').addEventListener('click', () => approveRequest(teamId, d.id, data, card));
+      row.querySelector('.btn-deny').addEventListener('click',    () => denyRequest(teamId, d.id));
+      list.appendChild(row);
+    });
+  });
+  unsubRequestsMap.set(teamId, unsub);
+}
+
+function subscribeTeamPlaysForCard(card, teamId) {
+  const grid = card.querySelector('.team-plays-grid');
+  const unsub = onSnapshot(collection(db,'teams',teamId,'plays'), snap => {
+    if (snap.empty) {
+      grid.innerHTML = `<div class="empty-state"><h2 style="font-size:15px">No plays yet</h2><p>Save a play from the designer.</p></div>`;
+      return;
+    }
+    grid.innerHTML = '';
+    snap.docs.sort((a,b) => (b.data().updatedAt?.seconds||0) - (a.data().updatedAt?.seconds||0))
+      .forEach(d => renderPlayCard(grid, d.id, d.data(), true));
+  });
+  unsubTeamPlaysMap.set(teamId, unsub);
+}
+
+async function approveRequest(teamId, uid, requestData, card) {
+  try {
+    await updateDoc(doc(db,'teams',teamId), { memberIds: arrayUnion(uid) });
+    await updateDoc(doc(db,'teams',teamId,'joinRequests',uid), { status:'approved' });
+    await setDoc(doc(db,'users',uid), {
+      teamIds:        arrayUnion(teamId),
+      pendingTeamIds: arrayRemove(teamId)
+    }, { merge: true });
+    toast(`${requestData.displayName} approved!`);
+    // Refresh members list for this card
+    const team = currentTeams.find(t => t.id === teamId);
+    if (team) {
+      team.memberIds = [...(team.memberIds||[]), uid];
+      loadMembersForCard(card, team);
+    }
+  } catch(e) { toast('Error approving request','error'); console.error(e); }
+}
+
+async function denyRequest(teamId, uid) {
+  try {
+    await updateDoc(doc(db,'teams',teamId,'joinRequests',uid), { status:'denied' });
+    await setDoc(doc(db,'users',uid), { pendingTeamIds: arrayRemove(teamId) }, { merge: true });
+    toast('Request denied');
+  } catch(e) { toast('Error','error'); }
+}
+
+/* ── Create Team ──────────────────────────────────────────────────────── */
+window.createTeam = async () => {
+  const name = document.getElementById('new-team-name').value.trim();
+  if (!name) { toast('Enter a team name','error'); return; }
+  const code = genCode();
+  try {
+    const ref = await addDoc(collection(db,'teams'), {
+      name, code,
+      captainId: currentUser.uid,
+      memberIds: [currentUser.uid],
+      createdAt: serverTimestamp()
+    });
+    await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayUnion(ref.id) }, { merge: true });
+    document.getElementById('new-team-name').value = '';
+    await refreshUserDoc();
+    // Add the new card without full reinit
+    const container = document.getElementById('teams-container');
+    document.getElementById('teams-empty').style.display = 'none';
+    await renderTeamCard(ref.id, container);
+    document.getElementById('btn-save-team').style.display = '';
+    toast(`Team "${name}" created! Code: ${code}`);
+  } catch(e) {
+    console.error('createTeam error:', e);
+    toast(`Error: ${e.code || e.message || 'unknown'}`, 'error');
+  }
+};
+
+function genCode() {
+  return Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
+/* ── Join Team ────────────────────────────────────────────────────────── */
+window.requestJoin = async () => {
+  const code     = document.getElementById('join-code').value.trim().toUpperCase();
+  const statusEl = document.getElementById('join-status');
+  if (!code || code.length !== 6) { statusEl.textContent = 'Enter a valid 6-letter code.'; return; }
+  statusEl.textContent = 'Searching…';
+  try {
+    const q    = query(collection(db,'teams'), where('code','==',code));
+    const snap = await getDocs(q);
+    if (snap.empty) { statusEl.textContent = 'No team found with that code.'; return; }
+    const teamDoc  = snap.docs[0];
+    const teamData = teamDoc.data();
+    if ((teamData.memberIds||[]).includes(currentUser.uid)) {
+      statusEl.textContent = 'You are already on this team.'; return;
+    }
+    const pendingTeamIds = userDoc.pendingTeamIds || (userDoc.pendingTeamId ? [userDoc.pendingTeamId] : []);
+    if (pendingTeamIds.includes(teamDoc.id)) {
+      statusEl.textContent = 'You already have a pending request for this team.'; return;
+    }
+    await setDoc(doc(db,'teams',teamDoc.id,'joinRequests',currentUser.uid), {
+      displayName: currentUser.displayName || currentUser.email,
+      email:       currentUser.email,
+      status:      'pending',
+      requestedAt: serverTimestamp()
+    });
+    await setDoc(doc(db,'users',currentUser.uid), { pendingTeamIds: arrayUnion(teamDoc.id) }, { merge: true });
+    document.getElementById('join-code').value = '';
+    statusEl.textContent = '';
+    await refreshUserDoc();
+    await renderPendingSection(userDoc.pendingTeamIds || [teamDoc.id]);
+    toast(`Request sent to "${teamData.name}"!`);
+  } catch(e) { statusEl.textContent = 'Error. Try again.'; console.error(e); }
+};
+
+/* ── Cancel join request ──────────────────────────────────────────────── */
+window.cancelJoinRequest = async (teamId) => {
+  if (!confirm('Cancel your join request?')) return;
+  try {
+    await deleteDoc(doc(db,'teams',teamId,'joinRequests',currentUser.uid));
+    await setDoc(doc(db,'users',currentUser.uid), { pendingTeamIds: arrayRemove(teamId) }, { merge: true });
+    await refreshUserDoc();
+    const pendingTeamIds = userDoc.pendingTeamIds || [];
+    await renderPendingSection(pendingTeamIds);
+    toast('Request cancelled');
+  } catch(e) { toast('Error','error'); }
+};
+
+/* ── Leave Team ───────────────────────────────────────────────────────── */
+window.leaveTeam = async (teamId) => {
+  const team = currentTeams.find(t => t.id === teamId);
+  if (!team) return;
+  if (team.captainId === currentUser.uid) {
+    alert('Captains cannot leave. Transfer captaincy first, or delete the team.'); return;
+  }
+  if (!confirm(`Leave "${team.name}"?`)) return;
+  try {
+    await updateDoc(doc(db,'teams',teamId), { memberIds: arrayRemove(currentUser.uid) });
+    await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayRemove(teamId) }, { merge: true });
+    // Stop listeners for this team
+    if (unsubTeamPlaysMap.has(teamId)) { unsubTeamPlaysMap.get(teamId)(); unsubTeamPlaysMap.delete(teamId); }
+    if (unsubRequestsMap.has(teamId))  { unsubRequestsMap.get(teamId)();  unsubRequestsMap.delete(teamId); }
+    // Remove card from DOM
+    document.querySelector(`.team-card[data-team-id="${teamId}"]`)?.remove();
+    currentTeams = currentTeams.filter(t => t.id !== teamId);
+    if (currentTeams.length === 0) {
+      document.getElementById('teams-empty').style.display = '';
+      document.getElementById('btn-save-team').style.display = 'none';
+    }
+    await refreshUserDoc();
+    toast('Left the team');
+  } catch(e) { toast('Error','error'); console.error(e); }
+};
+
+/* ── Save play to team ────────────────────────────────────────────────── */
+window.savePlayToTeam = async () => {
+  if (currentTeams.length === 0) { toast('You are not on any teams','error'); return; }
+  if (currentTeams.length === 1) {
+    savePlayToSpecificTeam(currentTeams[0].id); return;
+  }
+  // Multiple teams — show picker
+  const list = document.getElementById('team-picker-list');
+  list.innerHTML = '';
+  currentTeams.forEach(team => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-sidebar';
+    btn.textContent = team.name;
+    btn.addEventListener('click', () => {
+      closeTeamPicker();
+      savePlayToSpecificTeam(team.id);
+    });
+    list.appendChild(btn);
+  });
+  const overlay = document.getElementById('team-picker-overlay');
+  overlay.style.display = 'flex';
+};
+
+window.closeTeamPicker = () => {
+  document.getElementById('team-picker-overlay').style.display = 'none';
+};
+
+async function savePlayToSpecificTeam(teamId) {
+  const teamData = serialisePlay();
+  teamData.authorId   = currentUser.uid;
+  teamData.authorName = currentUser.displayName || currentUser.email;
+  const team = currentTeams.find(t => t.id === teamId);
+  try {
+    // Save to team playbook
+    await addDoc(collection(db,'teams',teamId,'plays'), teamData);
+
+    // Also automatically save to personal My Plays
+    const personalData = serialisePlay();
+    personalData.ownerId = currentUser.uid;
+    if (currentPlayId) {
+      await setDoc(doc(db,'plays',currentPlayId), personalData);
+    } else {
+      const ref = await addDoc(collection(db,'plays'), personalData);
+      currentPlayId = ref.id;
+    }
+    unsavedChanges = false;
+
+    toast(`Saved to ${team ? team.name : 'team'} & My Plays!`);
+  } catch(e) { toast('Error saving to team','error'); console.error(e); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════════════ */
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Boot ─────────────────────────────────────────────────────────────── */
+initPlayers();
+resizeCanvas();
+buildSnapGrid();
+updateDirPad();
+updateOptionLabel();
+</script>
+</body>
+</html>
