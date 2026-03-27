@@ -6,7 +6,10 @@
 <title>FFA Playmaker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init(jDNKFNSJ4fLc2aQ7W);</script>
+  
+  <style>
 /* ── Reset & Variables ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -766,18 +769,28 @@ canvas#field {
   </div>
 </div>
   
-<!-- Feedback Modal -->
-<div class="feedback-overlay" id="feedback-overlay">
-  <div class="feedback-modal">
-    <h2>💬 Feedback / Report a Bug</h2>
-    <p>Describe your issue or suggestion. Clicking Send will open your mail app with your message pre-filled — just hit send from there.</p>
-    <textarea id="feedback-text" maxlength="5000" placeholder="What's on your mind?"></textarea>
-    <div class="feedback-modal-actions">
-      <button class="btn-sidebar primary" onclick="submitFeedback()">Send</button>
-      <button class="btn-sidebar" onclick="closeFeedback()">Cancel</button>
-    </div>
-  </div>
-</div>
+window.submitFeedback = async () => {
+  const text = document.getElementById('feedback-text').value.trim();
+  if (!text) { toast('Please write something first', 'error'); return; }
+  const sendBtn = document.querySelector('#feedback-overlay .btn-sidebar.primary');
+  sendBtn.textContent = 'Sending…';
+  sendBtn.disabled = true;
+  const user = currentUser ? (currentUser.displayName || currentUser.email || 'unknown') : 'unknown';
+  try {
+    await emailjs.send(service_w38100i, template_qceqi77, {
+      from_user: user,
+      message:   text
+    });
+    closeFeedback();
+    toast('Feedback sent — thanks!');
+  } catch(e) {
+    console.error(e);
+    toast('Failed to send — please try again', 'error');
+  } finally {
+    sendBtn.textContent = 'Send';
+    sendBtn.disabled = false;
+  }
+};
   
 <!-- Firebase -->
 <script src="firebase-config.js"></script>
