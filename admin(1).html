@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFA Playmaker — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #0d0d0d;
+  --panel:   #161616;
+  --border:  #2a2a2a;
+  --white:   #f0f0f0;
+  --muted:   #666;
+  --lime:    #b8ff47;
+  --red:     #ff4444;
+  --amber:   #ffb347;
+  --blue:    #47aaff;
+  --radius:  8px;
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* ── Auth gate ── */
+#auth-gate {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+  font-size: 16px; color: var(--muted);
+}
+
+/* ── Layout ── */
+#app { display: none; }
+header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex; align-items: center; gap: 16px;
+  height: 56px;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; color: var(--lime); letter-spacing: 1px;
+}
+.admin-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(184,255,71,0.15); color: var(--lime);
+  padding: 2px 8px; border-radius: 99px;
+}
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
+.btn-signout {
+  padding: 5px 12px; border: 1px solid var(--border); background: transparent;
+  border-radius: 6px; color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 12px; cursor: pointer;
+}
+.btn-signout:hover { border-color: var(--red); color: var(--red); }
+.btn-back {
+  padding: 5px 12px; border: 1px solid var(--border); background: transparent;
+  border-radius: 6px; color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 12px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.btn-back:hover { border-color: var(--lime); color: var(--lime); }
+
+/* ── Nav tabs ── */
+.nav-tabs {
+  display: flex; gap: 4px; padding: 0 28px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+.nav-tab {
+  padding: 12px 16px; border: none; background: transparent;
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.nav-tab:hover { color: var(--white); }
+.nav-tab.active { color: var(--lime); border-bottom-color: var(--lime); }
+
+/* ── Content ── */
+main { padding: 28px; max-width: 1400px; }
+
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px; color: var(--lime);
+  letter-spacing: 0.5px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.count-badge {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 600;
+  background: var(--border); color: var(--muted);
+  padding: 2px 8px; border-radius: 99px;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Stats bar ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px; margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+}
+.stat-num { font-size: 28px; font-weight: 700; color: var(--lime); line-height: 1; }
+.stat-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.7px; }
+
+/* ── Tables ── */
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  text-align: left; padding: 8px 12px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ── Team cards ── */
+.team-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
+}
+.team-header {
+  padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; user-select: none;
+  border-bottom: 1px solid var(--border);
+}
+.team-header:hover { background: rgba(255,255,255,0.02); }
+.team-name { font-weight: 700; font-size: 15px; }
+.team-code {
+  font-family: monospace; font-size: 13px; letter-spacing: 2px;
+  color: var(--lime); background: rgba(184,255,71,0.08);
+  padding: 2px 8px; border-radius: 4px;
+}
+.team-meta { font-size: 11px; color: var(--muted); margin-left: auto; }
+.chevron { font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+.team-card.expanded .chevron { transform: rotate(180deg); }
+.team-body { display: none; padding: 16px; }
+.team-card.expanded .team-body { display: block; }
+
+.team-section-title {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--muted);
+  margin: 12px 0 8px;
+}
+.team-section-title:first-child { margin-top: 0; }
+
+.pill {
+  display: inline-block; padding: 1px 8px; border-radius: 99px;
+  font-size: 11px; font-weight: 600;
+}
+.pill-captain { background: rgba(184,255,71,0.12); color: var(--lime); }
+.pill-member  { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+/* ── Activity log ── */
+.log-row {
+  display: flex; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border); align-items: flex-start;
+  font-size: 13px;
+}
+.log-row:last-child { border-bottom: none; }
+.log-icon { font-size: 16px; flex-shrink: 0; width: 24px; text-align: center; margin-top: 1px; }
+.log-body { flex: 1; }
+.log-who { font-weight: 600; }
+.log-what { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.log-time { font-size: 11px; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+
+.type-play_save       { color: var(--blue); }
+.type-play_save_team  { color: var(--lime); }
+.type-team_create     { color: var(--lime); }
+.type-team_leave      { color: var(--red); }
+.type-join_approved   { color: #66ff99; }
+.type-join_denied     { color: var(--red); }
+
+/* ── Filter row ── */
+.filter-row {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 5px 12px; border: 1px solid var(--border); background: transparent;
+  border-radius: 99px; color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 12px; cursor: pointer; transition: all 0.13s;
+}
+.filter-btn:hover, .filter-btn.active { border-color: var(--lime); color: var(--lime); }
+.filter-btn.active { background: rgba(184,255,71,0.1); }
+
+input.search-box {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--white);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: 7px 12px; outline: none; width: 240px;
+}
+input.search-box:focus { border-color: var(--lime); }
+
+/* ── Users table ── */
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--border); display: inline-flex;
+  align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--lime);
+  flex-shrink: 0;
+}
+.user-row { display: flex; align-items: center; gap: 8px; }
+
+/* ── Loading spinner ── */
+.loading {
+  text-align: center; padding: 48px; color: var(--muted); font-size: 14px;
+}
+.spinner {
+  width: 24px; height: 24px; border: 2px solid var(--border);
+  border-top-color: var(--lime); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Empty state ── */
+.empty { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="auth-gate">
+  <div class="spinner"></div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="logo">FFA Playmaker</div>
+    <div class="admin-badge">Admin</div>
+    <div class="header-right">
+      <a href="app.html" class="btn-back">← Back to App</a>
+      <span id="admin-email" style="font-size:13px;color:var(--muted)"></span>
+      <button class="btn-signout" onclick="doSignOut()">Sign out</button>
+    </div>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+    <button class="nav-tab" onclick="showTab('teams')">Teams</button>
+    <button class="nav-tab" onclick="showTab('users')">Users</button>
+    <button class="nav-tab" onclick="showTab('log')">Activity Log</button>
+  </div>
+
+  <main>
+
+    <!-- ═══ OVERVIEW ═══ -->
+    <div class="page active" id="tab-overview">
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="stat-num" id="stat-teams">—</div><div class="stat-lbl">Teams</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-users">—</div><div class="stat-lbl">Users</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-plays">—</div><div class="stat-lbl">Personal Plays</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-team-plays">—</div><div class="stat-lbl">Team Plays</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-log">—</div><div class="stat-lbl">Log Events</div></div>
+      </div>
+
+      <div class="section-title">Recent Activity</div>
+      <div id="overview-log"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+    </div>
+
+    <!-- ═══ TEAMS ═══ -->
+    <div class="page" id="tab-teams">
+      <div class="section-title">
+        All Teams
+        <span class="count-badge" id="teams-count">…</span>
+      </div>
+      <div id="teams-list"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+    </div>
+
+    <!-- ═══ USERS ═══ -->
+    <div class="page" id="tab-users">
+      <div class="section-title">
+        All Users
+        <span class="count-badge" id="users-count">…</span>
+      </div>
+      <div class="filter-row">
+        <input class="search-box" id="user-search" placeholder="Search by name or email…" oninput="filterUsers()">
+      </div>
+      <div class="table-wrap">
+        <table id="users-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Teams</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="4"><div class="loading"><div class="spinner"></div>Loading…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ ACTIVITY LOG ═══ -->
+    <div class="page" id="tab-log">
+      <div class="section-title">
+        Activity Log
+        <span class="count-badge" id="log-count">…</span>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" data-type="all"           onclick="filterLog(this)">All</button>
+        <button class="filter-btn"        data-type="play_save"     onclick="filterLog(this)">Play Saves</button>
+        <button class="filter-btn"        data-type="play_save_team" onclick="filterLog(this)">Team Saves</button>
+        <button class="filter-btn"        data-type="team_create"   onclick="filterLog(this)">Team Created</button>
+        <button class="filter-btn"        data-type="team_leave"    onclick="filterLog(this)">Left Team</button>
+        <button class="filter-btn"        data-type="join_approved" onclick="filterLog(this)">Approved</button>
+        <button class="filter-btn"        data-type="join_denied"   onclick="filterLog(this)">Denied</button>
+      </div>
+      <div id="log-list"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+    </div>
+
+  </main>
+</div>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, getDocs, getDoc,
+  doc, query, orderBy, limit, where
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ── Config ─────────────────────────────────────────────────────────────── */
+const ADMIN_EMAIL = 'philkip_j@hotmail.com';
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ── Auth gate ──────────────────────────────────────────────────────────── */
+onAuthStateChanged(auth, async user => {
+  if (!user || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    window.location.href = 'index.html';
+    return;
+  }
+  document.getElementById('auth-gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('admin-email').textContent = user.email;
+  loadAll();
+});
+
+window.doSignOut = () => signOut(auth).then(() => window.location.href = 'index.html');
+
+/* ── Tab switching ──────────────────────────────────────────────────────── */
+window.showTab = (id) => {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+};
+
+/* ── Cache ──────────────────────────────────────────────────────────────── */
+let allTeams    = [];  // [{id, ...data, members:[{uid,name,email,isCap}], plays:[...]}]
+let allUsers    = [];  // [{id, ...data}]
+let allPlays    = [];  // personal plays
+let allLogItems = [];  // activity log
+
+/* ── Load all data ──────────────────────────────────────────────────────── */
+async function loadAll() {
+  await Promise.all([loadUsers(), loadTeams(), loadPlays(), loadLog()]);
+  renderOverview();
+}
+
+async function loadUsers() {
+  const snap = await getDocs(collection(db, 'users'));
+  allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  document.getElementById('users-count').textContent = allUsers.length;
+  renderUsersTable(allUsers);
+}
+
+async function loadTeams() {
+  const snap = await getDocs(collection(db, 'teams'));
+  allTeams = [];
+  for (const d of snap.docs) {
+    const team = { id: d.id, ...d.data(), members: [], plays: [] };
+
+    // Fetch member details
+    for (const uid of (team.memberIds || [])) {
+      const usnap = await getDoc(doc(db, 'users', uid));
+      const ud    = usnap.exists() ? usnap.data() : {};
+      team.members.push({
+        uid,
+        name:   ud.displayName || uid,
+        email:  ud.email || '',
+        isCap:  uid === team.captainId
+      });
+    }
+
+    // Fetch team plays
+    const psnap = await getDocs(collection(db, 'teams', d.id, 'plays'));
+    team.plays = psnap.docs.map(p => ({ id: p.id, ...p.data() }));
+
+    allTeams.push(team);
+  }
+  document.getElementById('teams-count').textContent = allTeams.length;
+  renderTeams();
+}
+
+async function loadPlays() {
+  const snap = await getDocs(collection(db, 'plays'));
+  allPlays = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function loadLog() {
+  const q    = query(collection(db, 'activityLog'), orderBy('at', 'desc'), limit(500));
+  const snap = await getDocs(q);
+  allLogItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  document.getElementById('log-count').textContent = allLogItems.length;
+  renderLog(allLogItems);
+  renderOverviewLog(allLogItems.slice(0, 20));
+}
+
+/* ── Overview ───────────────────────────────────────────────────────────── */
+function renderOverview() {
+  document.getElementById('stat-teams').textContent     = allTeams.length;
+  document.getElementById('stat-users').textContent     = allUsers.length;
+  document.getElementById('stat-plays').textContent     = allPlays.length;
+  const teamPlayCount = allTeams.reduce((n, t) => n + t.plays.length, 0);
+  document.getElementById('stat-team-plays').textContent = teamPlayCount;
+  document.getElementById('stat-log').textContent       = allLogItems.length;
+}
+
+function renderOverviewLog(items) {
+  const el = document.getElementById('overview-log');
+  if (!items.length) { el.innerHTML = '<div class="empty">No activity yet</div>'; return; }
+  el.innerHTML = items.map(item => logRowHtml(item)).join('');
+}
+
+/* ── Teams ──────────────────────────────────────────────────────────────── */
+function renderTeams() {
+  const el = document.getElementById('teams-list');
+  if (!allTeams.length) { el.innerHTML = '<div class="empty">No teams yet</div>'; return; }
+
+  el.innerHTML = allTeams.map(team => {
+    const created = team.createdAt?.seconds
+      ? new Date(team.createdAt.seconds * 1000).toLocaleDateString('en-AU')
+      : '—';
+
+    const membersHtml = team.members.map(m => `
+      <tr>
+        <td><div class="user-row">
+          <div class="avatar">${initials(m.name)}</div>
+          <div>
+            <div style="font-weight:500">${escHtml(m.name)}</div>
+            <div style="font-size:11px;color:var(--muted)">${escHtml(m.email)}</div>
+          </div>
+        </div></td>
+        <td><span class="pill ${m.isCap ? 'pill-captain' : 'pill-member'}">${m.isCap ? 'Captain' : 'Member'}</span></td>
+      </tr>`).join('');
+
+    const playsHtml = team.plays.length
+      ? team.plays.map(p => {
+          const savedAt = p.updatedAt?.seconds
+            ? new Date(p.updatedAt.seconds * 1000).toLocaleString('en-AU')
+            : '—';
+          return `<tr>
+            <td style="font-weight:500">${escHtml(p.name || 'Untitled')}</td>
+            <td style="color:var(--muted);font-size:12px">${escHtml(p.authorName || p.ownerId || '—')}</td>
+            <td style="color:var(--muted);font-size:12px">${savedAt}</td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="3" style="color:var(--muted);font-size:12px;padding:8px 12px">No plays yet</td></tr>';
+
+    return `
+      <div class="team-card" id="tc-${team.id}">
+        <div class="team-header" onclick="toggleTeam('${team.id}')">
+          <div class="team-name">${escHtml(team.name)}</div>
+          <div class="team-code">${escHtml(team.code)}</div>
+          <div style="font-size:12px;color:var(--muted)">${team.members.length} member${team.members.length !== 1 ? 's' : ''} · ${team.plays.length} play${team.plays.length !== 1 ? 's' : ''}</div>
+          <div class="team-meta">Created ${created}</div>
+          <div class="chevron">▼</div>
+        </div>
+        <div class="team-body">
+          <div class="team-section-title">Members</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>User</th><th>Role</th></tr></thead>
+              <tbody>${membersHtml}</tbody>
+            </table>
+          </div>
+          <div class="team-section-title" style="margin-top:16px">Plays</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Play Name</th><th>Saved By</th><th>Last Updated</th></tr></thead>
+              <tbody>${playsHtml}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.toggleTeam = (id) => {
+  document.getElementById('tc-' + id).classList.toggle('expanded');
+};
+
+/* ── Users ──────────────────────────────────────────────────────────────── */
+function renderUsersTable(users) {
+  const tbody = document.getElementById('users-tbody');
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty">No users found</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(u => {
+    const teamIds  = u.teamIds || (u.teamId ? [u.teamId] : []);
+    const teamNames = teamIds.map(tid => {
+      const t = allTeams.find(x => x.id === tid);
+      return t ? escHtml(t.name) : `<span style="color:var(--muted)">${tid.slice(0,8)}…</span>`;
+    }).join(', ') || '<span style="color:var(--muted)">None</span>';
+
+    const joined = u.createdAt?.seconds
+      ? new Date(u.createdAt.seconds * 1000).toLocaleDateString('en-AU')
+      : '—';
+
+    return `<tr>
+      <td><div class="user-row">
+        <div class="avatar">${initials(u.displayName || u.email)}</div>
+        <div style="font-weight:500">${escHtml(u.displayName || '—')}</div>
+      </div></td>
+      <td>${escHtml(u.email || '—')}</td>
+      <td>${teamNames}</td>
+      <td style="color:var(--muted);font-size:12px">${joined}</td>
+    </tr>`;
+  }).join('');
+}
+
+window.filterUsers = () => {
+  const q = document.getElementById('user-search').value.toLowerCase();
+  const filtered = allUsers.filter(u =>
+    (u.displayName || '').toLowerCase().includes(q) ||
+    (u.email || '').toLowerCase().includes(q)
+  );
+  document.getElementById('users-count').textContent = filtered.length;
+  renderUsersTable(filtered);
+};
+
+/* ── Activity Log ───────────────────────────────────────────────────────── */
+let currentLogFilter = 'all';
+
+function renderLog(items) {
+  const el = document.getElementById('log-list');
+  const filtered = currentLogFilter === 'all' ? items : items.filter(i => i.type === currentLogFilter);
+  if (!filtered.length) { el.innerHTML = '<div class="empty">No events match this filter</div>'; return; }
+  el.innerHTML = filtered.map(item => logRowHtml(item)).join('');
+}
+
+function logRowHtml(item) {
+  const icons = {
+    play_save:       '💾',
+    play_save_team:  '🏟️',
+    team_create:     '🆕',
+    team_leave:      '👋',
+    join_approved:   '✅',
+    join_denied:     '❌',
+  };
+  const labels = {
+    play_save:       (i) => `saved play <strong>${escHtml(i.playName || '—')}</strong> (${i.action || 'personal'})`,
+    play_save_team:  (i) => `saved play <strong>${escHtml(i.playName || '—')}</strong> to team <strong>${escHtml(i.teamName || '—')}</strong>`,
+    team_create:     (i) => `created team <strong>${escHtml(i.teamName || '—')}</strong>`,
+    team_leave:      (i) => `left team <strong>${escHtml(i.teamName || '—')}</strong>`,
+    join_approved:   (i) => `approved <strong>${escHtml(i.approvedName || i.approvedUid || '—')}</strong> to join team`,
+    join_denied:     (i) => `denied join request from <strong>${escHtml(i.deniedUid || '—')}</strong>`,
+  };
+
+  const icon  = icons[item.type]  || '📋';
+  const label = labels[item.type] ? labels[item.type](item) : escHtml(item.type);
+  const when  = item.at?.seconds
+    ? new Date(item.at.seconds * 1000).toLocaleString('en-AU', {
+        day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
+      })
+    : '—';
+
+  return `<div class="log-row">
+    <div class="log-icon">${icon}</div>
+    <div class="log-body">
+      <div class="log-who type-${item.type}">${escHtml(item.displayName || item.email || item.uid)}</div>
+      <div class="log-what">${label}</div>
+    </div>
+    <div class="log-time">${when}</div>
+  </div>`;
+}
+
+window.filterLog = (btn) => {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentLogFilter = btn.dataset.type;
+  renderLog(allLogItems);
+};
+
+/* ── Helpers ────────────────────────────────────────────────────────────── */
+function initials(name) {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  return parts.length >= 2
+    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
