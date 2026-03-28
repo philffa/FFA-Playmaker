@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Admin helper ───────────────────────────────────────────────────────
+    function isAdmin() {
+      return request.auth != null &&
+             request.auth.token.email == 'philkip_j@hotmail.com';
+    }
+
+    // ── Users ──────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // ── Personal plays ─────────────────────────────────────────────────────
+    match /plays/{playId} {
+      allow read:   if request.auth != null
+                    && (request.auth.uid == resource.data.ownerId || isAdmin());
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.ownerId;
+      allow update: if request.auth != null
+                    && request.auth.uid == resource.data.ownerId;
+      allow delete: if request.auth != null
+                    && (request.auth.uid == resource.data.ownerId || isAdmin());
+    }
+
+    // ── Activity log ───────────────────────────────────────────────────────
+    match /activityLog/{logId} {
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.uid;
+      allow read:   if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // ── Teams ──────────────────────────────────────────────────────────────
+    match /teams/{teamId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.captainId;
+
+      allow update: if request.auth != null
+                    && (request.auth.uid == resource.data.captainId || isAdmin());
+
+      allow delete: if isAdmin();
+
+      // ── Join requests ───────────────────────────────────────────────────
+      match /joinRequests/{requestId} {
+        allow read: if request.auth != null
+                    && (request.auth.uid == get(/databases/$(database)/documents/teams/$(teamId)).data.captainId
+                        || request.auth.uid == requestId
+                        || isAdmin());
+
+        allow create: if request.auth != null
+                      && request.auth.uid == requestId;
+
+        allow update: if request.auth != null
+                      && (request.auth.uid == get(/databases/$(database)/documents/teams/$(teamId)).data.captainId
+                          || isAdmin());
+
+        allow delete: if request.auth != null
+                      && (request.auth.uid == get(/databases/$(database)/documents/teams/$(teamId)).data.captainId
+                          || request.auth.uid == requestId
+                          || isAdmin());
+      }
+
+      // ── Team plays ──────────────────────────────────────────────────────
+      match /plays/{playId} {
+        allow read: if request.auth != null
+                    && (request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.memberIds
+                        || isAdmin());
+
+        allow create, update: if request.auth != null
+                               && request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.memberIds;
+
+        allow delete: if request.auth != null
+                      && (request.auth.uid == get(/databases/$(database)/documents/teams/$(teamId)).data.captainId
+                          || request.auth.uid == resource.data.authorId
+                          || isAdmin());
+      }
+    }
+  }
+}
