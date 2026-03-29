@@ -360,7 +360,7 @@ canvas#field {
   width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  transition: all 0.12s;
+  transition: all 0.12px;
 }
 .btn-icon:hover { border-color: var(--lime); color: var(--lime); }
 .btn-icon.danger:hover { border-color: var(--error); color: var(--error); }
@@ -652,7 +652,7 @@ canvas#field {
 
       <div class="sidebar-section">
         <h3>Route Style</h3>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Locks the primary route and lets you draw a dotted option branch from its end.</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Locks the primary route and lets you draw a dotted option branch from its <strong style="color:var(--white)">last direction change</strong>.</div>
         <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--white);cursor:pointer;font-weight:normal;text-transform:none;letter-spacing:0">
           <input type="checkbox" id="option-route-toggle" style="accent-color:var(--lime);width:14px;height:14px;">
           <span id="option-route-label">Draw option branch (dotted)</span>
@@ -1095,8 +1095,7 @@ function drawRoutes() {
     const prev = pts[pts.length-2];
     drawArrow(prev.x*PX, prev.y*PX, last.x*PX, last.y*PX, color);
 
-    // Option branch — dotted
-    // Option branch — dotted
+    // Option branch — dotted, stems from pts[length-2] (the elbow)
     const optPts = routes[pid].optionWaypoints;
     if (optPts && optPts.length >= 2) {
       ctx.strokeStyle = color;
@@ -1381,8 +1380,9 @@ function addWaypoint(pos) {
     const rt = routes[selectedPlayerId];
     if (!rt) { toast('Draw a primary route first', 'error'); return; }
     if (!rt.optionWaypoints) {
-      const end = rt[rt.length - 1];
-      rt.optionWaypoints = [{ x: end.x, y: end.y }];
+      // Branch starts at the ELBOW (last direction change), not the route tip
+      const elbow = rt.length >= 2 ? rt[rt.length - 2] : rt[rt.length - 1];
+      rt.optionWaypoints = [{ x: elbow.x, y: elbow.y }];
     }
     rt.optionWaypoints.push({ x: pos.x, y: pos.y });
     unsavedChanges = true;
@@ -1457,21 +1457,21 @@ document.getElementById('option-route-toggle').addEventListener('change', functi
   if (!selectedPlayerId) return;
 
   if (isOptionRoute) {
-    // Must have a primary route to branch from
+    // Must have a primary route with at least 2 points to find an elbow
     if (!routes[selectedPlayerId] || routes[selectedPlayerId].length < 2) {
       toast('Draw a primary route first', 'error');
       this.checked = false;
       isOptionRoute = false;
       return;
     }
-    // Seed option branch from the end of the primary route (if not already started)
+    // ── FIX 1 ── Seed option branch from the ELBOW (second-to-last = last direction change)
     const rt = routes[selectedPlayerId];
     if (!rt.optionWaypoints || rt.optionWaypoints.length < 1) {
-      const end = rt[rt.length - 1];
-      rt.optionWaypoints = [{ x: end.x, y: end.y }];
+      const elbow = rt.length >= 2 ? rt[rt.length - 2] : rt[rt.length - 1];
+      rt.optionWaypoints = [{ x: elbow.x, y: elbow.y }];
     }
     drawingMode = false;
-    toast('Option mode — draw or pick a preset for the dotted branch');
+    toast('Option mode — dotted branch stems from the last direction change');
   } else {
     // Leaving option mode — keep whatever was drawn, reset drawing
     drawingMode = false;
@@ -1524,57 +1524,48 @@ function applyPresetRoute(type) {
   const p = players.find(p=>p.id===selectedPlayerId);
   if (!p) return;
   const isLeft = p.x < FIELD_YARDS_W / 2;
-  // In option mode, branch starts from the end of the primary route
-  const origin = (isOptionRoute && routes[selectedPlayerId] && routes[selectedPlayerId].length >= 1)
-    ? routes[selectedPlayerId][routes[selectedPlayerId].length - 1]
+
+  // ── FIX 3 ── In option mode, branch origin = ELBOW (second-to-last point of primary route)
+  //             In normal mode, origin = player position (or motion endpoint)
+  const origin = (isOptionRoute && routes[selectedPlayerId] && routes[selectedPlayerId].length >= 2)
+    ? routes[selectedPlayerId][routes[selectedPlayerId].length - 2]
     : routeOrigin(selectedPlayerId);
+
   const sx = origin.x, sy = origin.y;
   const d = isLeft ? -1 : 1;
 
   let pts;
   switch(type) {
     case 'go':
-      // Straight vertical fly
       pts = [{x:sx,y:sy},{x:sx,y:sy-10}]; break;
     case 'slant':
-      // Short stem then flat break inward
       pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*6,y:sy-4}]; break;
     case 'whip':
-      // Slant inward then snap flat back out to the sideline
       pts = [{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*4,y:sy-5},{x:sx+d*4,y:sy-5}]; break;
     case 'curl':
-      // Run up then curl back toward QB
       pts = [{x:sx,y:sy},{x:sx,y:sy-6},{x:sx+d*1,y:sy-4}]; break;
     case 'out':
-      // Stem then flat break to sideline
       pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*5,y:sy-5}]; break;
     case 'in':
-      // 5y stem then break hard inward
       pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*5,y:sy-5}]; break;
     case 'dig':
-      // 10y stem then break hard inward (deeper than in)
       pts = [{x:sx,y:sy},{x:sx,y:sy-10},{x:sx-d*6,y:sy-10}]; break;
     case 'corner':
-      // Stem then break toward the corner of the end zone (outward+up)
       pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-9}]; break;
     case 'post':
-      // Stem then break toward the goalpost (inward+up)
       pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*4,y:sy-10}]; break;
     case 'postcorner':
-      // Post fake then break back out to corner (double-cut)
       pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*3,y:sy-8},{x:sx+d*3,y:sy-12}]; break;
     case 'cross':
-      // Short stem then run across the middle
       pts = [{x:sx,y:sy},{x:sx,y:sy-2},{x:sx-d*8,y:sy-2}]; break;
     case 'chair':
-      // Up, flat out to sideline at 5y, then vertical upfield
       pts = [{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-5},{x:sx+d*4,y:sy-12}]; break;
     case 'flat':
-      // Straight release to 3y from the nearest sideline, 1y upfield
       pts = [{x:sx,y:sy},{x:(isLeft ? 3 : FIELD_YARDS_W - 3), y:sy-1}]; break;
     default:
       pts = [{x:sx,y:sy},{x:sx,y:sy-8}];
   }
+
   // Clamp all points within field
   pts = pts.map(pt=>({
     x: Math.max(0.5, Math.min(FIELD_YARDS_W-0.5, pt.x)),
@@ -1931,30 +1922,19 @@ function renderPlayCard(grid, id, data, isTeam) {
    PRINT
 ══════════════════════════════════════════════════════════ */
 function printPlayData(data) {
-  // Re-render to print canvas at fixed size
   const pc = document.getElementById('print-canvas');
   const w = 700, h = Math.round(700 * (FIELD_YARDS_H / FIELD_YARDS_W));
   pc.width = w; pc.height = h;
-  const pctx = pc.getContext('2d');
-  const savedCtx = ctx;
   const savedPX  = PX;
   const savedW   = FIELD_W;
   const savedH   = FIELD_H;
   const savedLos = LOS_Y;
 
-  // Temporarily redirect globals for render
   PX = Math.floor(w / FIELD_YARDS_W);
   FIELD_W = PX * FIELD_YARDS_W;
   FIELD_H = PX * FIELD_YARDS_H;
-  LOS_Y   = FIELD_H - PX * 10;  // LOS is 10y from bottom
+  LOS_Y   = FIELD_H - PX * 10;
 
-  const tmpCanvas = document.createElement('canvas');
-  tmpCanvas.width = FIELD_W; tmpCanvas.height = FIELD_H;
-  const tmpCtx = tmpCanvas.getContext('2d');
-
-  // Swap context
-  const _ctx = window.__ctx = ctx;
-  // Inline render for print canvas
   deserialisePlay(data);
   PX = savedPX; FIELD_W = savedW; FIELD_H = savedH; LOS_Y = savedLos;
 
@@ -1969,9 +1949,7 @@ window.printPlay = () => { printPlayData(serialisePlay()); };
 /* ══════════════════════════════════════════════════════════
    TEAM HUB
 ══════════════════════════════════════════════════════════ */
-// currentTeams: array of {id, ...teamData} for teams the user is on
 let currentTeams = [];
-// unsubscribe maps keyed by teamId
 const unsubRequestsMap  = new Map();
 const unsubTeamPlaysMap = new Map();
 
@@ -1979,20 +1957,16 @@ async function initTeamSection() {
   await refreshUserDoc();
   currentTeams = [];
 
-  // Unsubscribe any existing listeners
   unsubRequestsMap.forEach(fn => fn());  unsubRequestsMap.clear();
   unsubTeamPlaysMap.forEach(fn => fn()); unsubTeamPlaysMap.clear();
 
   const teamIds        = userDoc.teamIds        || (userDoc.teamId        ? [userDoc.teamId]        : []);
   const pendingTeamIds = userDoc.pendingTeamIds  || (userDoc.pendingTeamId ? [userDoc.pendingTeamId] : []);
 
-  // Render pending requests
   await renderPendingSection(pendingTeamIds);
 
-  // Render each team the user is on
   const container = document.getElementById('teams-container');
   const emptyMsg  = document.getElementById('teams-empty');
-  // Clear existing team cards (but keep the empty message element)
   container.querySelectorAll('.team-card').forEach(el => el.remove());
 
   if (teamIds.length === 0) {
@@ -2028,7 +2002,6 @@ async function renderPendingSection(pendingTeamIds) {
 async function renderTeamCard(teamId, container) {
   const snap = await getDoc(doc(db,'teams',teamId));
   if (!snap.exists()) {
-    // Team gone — silently remove from user's list
     await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayRemove(teamId) }, { merge: true });
     return;
   }
@@ -2079,30 +2052,23 @@ async function renderTeamCard(teamId, container) {
     </div>
   `;
 
-  // Copy code
   card.querySelector('.copy-code-btn').addEventListener('click', () => {
     navigator.clipboard.writeText(team.code).then(() => toast('Team code copied!'));
   });
 
-  // Save play to this team directly
   card.querySelector('.save-here-btn').addEventListener('click', () => savePlayToSpecificTeam(teamId));
 
-  // Leave team
   const leaveBtn = card.querySelector('.leave-btn');
   if (leaveBtn) leaveBtn.addEventListener('click', () => leaveTeam(teamId));
 
-  // Add play (go to designer)
   card.querySelector('.add-play-btn').addEventListener('click', () => showPage('designer'));
 
   container.appendChild(card);
 
-  // Load members
   loadMembersForCard(card, team);
 
-  // Subscribe to join requests (captain only)
   if (isCaptain) subscribeRequestsForCard(card, teamId);
 
-  // Subscribe to team plays
   subscribeTeamPlaysForCard(card, teamId);
 }
 
@@ -2113,22 +2079,17 @@ async function loadMembersForCard(card, team) {
     let name  = null;
     let email = null;
 
-    // Try user document first
     try {
       const usnap = await getDoc(doc(db,'users',uid));
       if (usnap.exists()) {
         const ud = usnap.data();
         name  = ud.displayName || ud.name || null;
         email = ud.email || null;
-        console.log('user doc for', uid, ':', ud);
-      } else {
-        console.log('no user doc for uid:', uid);
       }
     } catch(e) {
       console.warn('could not fetch user doc for', uid, e);
     }
 
-    // Fall back to join request data (captains and members who joined via request have this)
     if (!name) {
       try {
         const jsnap = await getDoc(doc(db,'teams',team.id,'joinRequests',uid));
@@ -2165,13 +2126,6 @@ function subscribeRequestsForCard(card, teamId) {
     area.style.display = count > 0 ? '' : 'none';
     countEl.textContent = count ? `(${count})` : '';
 
-    // Update total badge on nav tab
-    let total = 0;
-    unsubRequestsMap.forEach(() => {}); // just iterate to count
-    document.querySelectorAll('.team-card').forEach(c => {
-      total += c.querySelectorAll('.request-row').length;
-    });
-    // Re-count properly after render
     setTimeout(() => {
       let t = 0;
       document.querySelectorAll('.request-row').length && (t = document.querySelectorAll('.request-row').length);
@@ -2225,7 +2179,6 @@ async function approveRequest(teamId, uid, requestData, card) {
     }, { merge: true });
     toast(`${requestData.displayName} approved!`);
     logActivity('join_approved', { teamId, approvedUid: uid, approvedName: requestData.displayName });
-    // Refresh members list for this card
     const team = currentTeams.find(t => t.id === teamId);
     if (team) {
       team.memberIds = [...(team.memberIds||[]), uid];
@@ -2258,7 +2211,6 @@ window.createTeam = async () => {
     await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayUnion(ref.id) }, { merge: true });
     document.getElementById('new-team-name').value = '';
     await refreshUserDoc();
-    // Add the new card without full reinit
     const container = document.getElementById('teams-container');
     document.getElementById('teams-empty').style.display = 'none';
     await renderTeamCard(ref.id, container);
@@ -2333,10 +2285,8 @@ window.leaveTeam = async (teamId) => {
   try {
     await updateDoc(doc(db,'teams',teamId), { memberIds: arrayRemove(currentUser.uid) });
     await setDoc(doc(db,'users',currentUser.uid), { teamIds: arrayRemove(teamId) }, { merge: true });
-    // Stop listeners for this team
     if (unsubTeamPlaysMap.has(teamId)) { unsubTeamPlaysMap.get(teamId)(); unsubTeamPlaysMap.delete(teamId); }
     if (unsubRequestsMap.has(teamId))  { unsubRequestsMap.get(teamId)();  unsubRequestsMap.delete(teamId); }
-    // Remove card from DOM
     document.querySelector(`.team-card[data-team-id="${teamId}"]`)?.remove();
     currentTeams = currentTeams.filter(t => t.id !== teamId);
     if (currentTeams.length === 0) {
@@ -2355,7 +2305,6 @@ window.savePlayToTeam = async () => {
   if (currentTeams.length === 1) {
     savePlayToSpecificTeam(currentTeams[0].id); return;
   }
-  // Multiple teams — show picker
   const list = document.getElementById('team-picker-list');
   list.innerHTML = '';
   currentTeams.forEach(team => {
@@ -2382,10 +2331,8 @@ async function savePlayToSpecificTeam(teamId) {
   teamData.authorName = currentUser.displayName || currentUser.email;
   const team = currentTeams.find(t => t.id === teamId);
   try {
-    // Save to team playbook
     await addDoc(collection(db,'teams',teamId,'plays'), teamData);
 
-    // Also automatically save to personal My Plays
     const personalData = serialisePlay();
     personalData.ownerId = currentUser.uid;
     if (currentPlayId) {
@@ -2406,7 +2353,6 @@ async function savePlayToSpecificTeam(teamId) {
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 
 /* ══════════════════════════════════════════════════════════
    FEEDBACK / BUG REPORT
@@ -2448,12 +2394,12 @@ window.sendFeedback = async () => {
     btn.textContent = 'Send Feedback';
   }
 };
+
 /* ── Boot ─────────────────────────────────────────────────────────────── */
 initPlayers();
 resizeCanvas();
 buildSnapGrid();
 updateDirPad();
-updateOptionLabel();
 updateOptionLabel();
 </script>
 </body>
