@@ -920,10 +920,31 @@ document.querySelectorAll(".route-btn").forEach(btn=>{
   });
 });
 
-function builtinPts(type,sx,sy,isLeft){
+function builtinPts(type,sx,sy,isLeft,breakOnly){
   const d=isLeft?-1:1;
-  // stemEnd:true marks where the stem ends and the break begins.
-  // The option branch always seeds from the stemEnd waypoint.
+  // Full route definitions with stemEnd:true marking the break point.
+  // When breakOnly=true, sx/sy IS the stem end — return only [stemEnd, ...breakPts].
+  if(breakOnly){
+    // Return just the break segment starting from (sx,sy).
+    // Offsets are the same as the break portion of the full route.
+    switch(type){
+      case"go":         return[{x:sx,y:sy},{x:sx,y:sy-7}]; // go has no break — continue upfield
+      case"slant":      return[{x:sx,y:sy},{x:sx-d*6,y:sy-1}];
+      case"whip":       return[{x:sx,y:sy},{x:sx-d*4,y:sy-2},{x:sx+d*4,y:sy-2}];
+      case"curl":       return[{x:sx,y:sy},{x:sx+d,y:sy+2}];
+      case"out":        return[{x:sx,y:sy},{x:sx+d*5,y:sy}];
+      case"in":         return[{x:sx,y:sy},{x:sx-d*5,y:sy}];
+      case"dig":        return[{x:sx,y:sy},{x:sx-d*6,y:sy}];
+      case"corner":     return[{x:sx,y:sy},{x:sx+d*4,y:sy-4}];
+      case"post":       return[{x:sx,y:sy},{x:sx-d*4,y:sy-5}];
+      case"postcorner": return[{x:sx,y:sy},{x:sx-d*3,y:sy-3},{x:sx+d*3,y:sy-7}];
+      case"cross":      return[{x:sx,y:sy},{x:sx-d*8,y:sy}];
+      case"chair":      return[{x:sx,y:sy},{x:sx+d*4,y:sy},{x:sx+d*4,y:sy-7}];
+      case"flat":       return[{x:sx,y:sy},{x:(isLeft?3:FW-3),y:sy-1}];
+      default:          return[{x:sx,y:sy},{x:sx,y:sy-5}];
+    }
+  }
+  // Full route (stem + break)
   switch(type){
     case"go":    return[{x:sx,y:sy,stemEnd:true},{x:sx,y:sy-10}];
     case"slant": return[{x:sx,y:sy},{x:sx,y:sy-3,stemEnd:true},{x:sx-d*6,y:sy-4}];
@@ -960,11 +981,15 @@ function applyPreset(type){
   const cp=customPresets.find(c=>c.id===type);
   let pts;
   if(cp){
-    // Scale custom waypoints (stored relative to player at LOS centre) to current origin
+    // Scale custom waypoints relative to current origin
     const losY=FH-10,cx=FW/2;
-    pts=cp.waypoints.map(pt=>({x:sx+(pt.x-cx),y:sy+(pt.y-losY)}));
+    // In option mode use only the break (skip first waypoint which is the player pos)
+    const cpPts=cp.waypoints.map(pt=>({x:sx+(pt.x-cx),y:sy+(pt.y-losY)}));
+    pts=isOptionRoute&&cpPts.length>1?cpPts.slice(1):cpPts;
+    if(isOptionRoute)pts=[{x:sx,y:sy},...pts.slice(1)]; // ensure starts at stem end
   }else{
-    pts=builtinPts(type,sx,sy,isLeft);
+    // breakOnly=true in option mode: only return the break segment from stem end
+    pts=builtinPts(type,sx,sy,isLeft,isOptionRoute);
   }
   pts=pts.map(pt=>({x:Math.max(.5,Math.min(FW-.5,pt.x)),y:Math.max(.5,Math.min(FH-.5,pt.y)),stemEnd:pt.stemEnd||false}));
   if(isOptionRoute){if(!routes[selectedPlayerId])return;routes[selectedPlayerId].optionWaypoints=pts;}
