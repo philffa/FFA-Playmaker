@@ -855,7 +855,7 @@ function addWP(pos){
   if(!selectedPlayerId)return;
   if(isOptionRoute){
     const rt=routes[selectedPlayerId];if(!rt){toast("Draw a primary route first","error");return;}
-    if(!rt.optionWaypoints){const bp=rt.length>=2?rt[rt.length-2]:rt[rt.length-1];rt.optionWaypoints=[{x:bp.x,y:bp.y}];}
+    if(!rt.optionWaypoints){const bp=getStemEnd(rt);rt.optionWaypoints=[{x:bp.x,y:bp.y}];}
     rt.optionWaypoints.push({x:pos.x,y:pos.y});unsavedChanges=true;updateDirPad();updateOptionLabel();render();return;
   }
   if(!routes[selectedPlayerId]){const o=routeOrigin(selectedPlayerId);routes[selectedPlayerId]=[{x:o.x,y:o.y}];routes[selectedPlayerId].color=routeColor;routes[selectedPlayerId].optionWaypoints=null;}
@@ -895,7 +895,7 @@ document.getElementById("option-route-toggle").addEventListener("change",functio
   if(isOptionRoute){
     if(!routes[selectedPlayerId]||routes[selectedPlayerId].length<2){toast("Draw a primary route first","error");this.checked=false;isOptionRoute=false;return;}
     const rt=routes[selectedPlayerId];
-    if(!rt.optionWaypoints||rt.optionWaypoints.length<1){const bp=rt.length>=2?rt[rt.length-2]:rt[rt.length-1];rt.optionWaypoints=[{x:bp.x,y:bp.y}];}
+    if(!rt.optionWaypoints||rt.optionWaypoints.length<1){const bp=getStemEnd(rt);rt.optionWaypoints=[{x:bp.x,y:bp.y}];}
     drawingMode=false;toast("Option mode — dotted branch from break point");
   }else drawingMode=false;
   unsavedChanges=true;updateOptionLabel();updateDirPad();syncMobileUI();render();
@@ -922,29 +922,39 @@ document.querySelectorAll(".route-btn").forEach(btn=>{
 
 function builtinPts(type,sx,sy,isLeft){
   const d=isLeft?-1:1;
+  // stemEnd:true marks where the stem ends and the break begins.
+  // The option branch always seeds from the stemEnd waypoint.
   switch(type){
-    case"go":    return[{x:sx,y:sy},{x:sx,y:sy-10}];
-    case"slant": return[{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*6,y:sy-4}];
-    case"whip":  return[{x:sx,y:sy},{x:sx,y:sy-3},{x:sx-d*4,y:sy-5},{x:sx+d*4,y:sy-5}];
-    case"curl":  return[{x:sx,y:sy},{x:sx,y:sy-6},{x:sx+d,y:sy-4}];
-    case"out":   return[{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*5,y:sy-5}];
-    case"in":    return[{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*5,y:sy-5}];
-    case"dig":   return[{x:sx,y:sy},{x:sx,y:sy-10},{x:sx-d*6,y:sy-10}];
-    case"corner":return[{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-9}];
-    case"post":  return[{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*4,y:sy-10}];
-    case"postcorner":return[{x:sx,y:sy},{x:sx,y:sy-5},{x:sx-d*3,y:sy-8},{x:sx+d*3,y:sy-12}];
-    case"cross": return[{x:sx,y:sy},{x:sx,y:sy-2},{x:sx-d*8,y:sy-2}];
-    case"chair": return[{x:sx,y:sy},{x:sx,y:sy-5},{x:sx+d*4,y:sy-5},{x:sx+d*4,y:sy-12}];
-    case"flat":  return[{x:sx,y:sy},{x:(isLeft?3:FW-3),y:sy-1}];
-    default:     return[{x:sx,y:sy},{x:sx,y:sy-8}];
+    case"go":    return[{x:sx,y:sy,stemEnd:true},{x:sx,y:sy-10}];
+    case"slant": return[{x:sx,y:sy},{x:sx,y:sy-3,stemEnd:true},{x:sx-d*6,y:sy-4}];
+    case"whip":  return[{x:sx,y:sy},{x:sx,y:sy-3,stemEnd:true},{x:sx-d*4,y:sy-5},{x:sx+d*4,y:sy-5}];
+    case"curl":  return[{x:sx,y:sy},{x:sx,y:sy-6,stemEnd:true},{x:sx+d,y:sy-4}];
+    case"out":   return[{x:sx,y:sy},{x:sx,y:sy-5,stemEnd:true},{x:sx+d*5,y:sy-5}];
+    case"in":    return[{x:sx,y:sy},{x:sx,y:sy-5,stemEnd:true},{x:sx-d*5,y:sy-5}];
+    case"dig":   return[{x:sx,y:sy},{x:sx,y:sy-10,stemEnd:true},{x:sx-d*6,y:sy-10}];
+    case"corner":return[{x:sx,y:sy},{x:sx,y:sy-5,stemEnd:true},{x:sx+d*4,y:sy-9}];
+    case"post":  return[{x:sx,y:sy},{x:sx,y:sy-5,stemEnd:true},{x:sx-d*4,y:sy-10}];
+    case"postcorner":return[{x:sx,y:sy},{x:sx,y:sy-5,stemEnd:true},{x:sx-d*3,y:sy-8},{x:sx+d*3,y:sy-12}];
+    case"cross": return[{x:sx,y:sy},{x:sx,y:sy-2,stemEnd:true},{x:sx-d*8,y:sy-2}];
+    case"chair": return[{x:sx,y:sy},{x:sx,y:sy-5,stemEnd:true},{x:sx+d*4,y:sy-5},{x:sx+d*4,y:sy-12}];
+    case"flat":  return[{x:sx,y:sy,stemEnd:true},{x:(isLeft?3:FW-3),y:sy-1}];
+    default:     return[{x:sx,y:sy},{x:sx,y:sy-8,stemEnd:true}];
   }
 }
+// Returns the waypoint that marks the end of the stem (start of the break).
+// Used to seed the option branch at the correct position.
+function getStemEnd(pts){
+  if(!pts||pts.length<2)return pts?pts[0]:null;
+  const tagged=pts.find(p=>p.stemEnd);
+  return tagged||pts[1];
+}
+
 
 function applyPreset(type){
   const p=players.find(p=>p.id===selectedPlayerId);if(!p)return;
   const isLeft=p.x<FW/2;
   const origin=(isOptionRoute&&routes[selectedPlayerId]&&routes[selectedPlayerId].length>=2)
-    ?routes[selectedPlayerId][routes[selectedPlayerId].length-2]:routeOrigin(selectedPlayerId);
+    ?getStemEnd(routes[selectedPlayerId]):routeOrigin(selectedPlayerId);
   const sx=origin.x,sy=origin.y;
   // Check custom presets first
   const cp=customPresets.find(c=>c.id===type);
@@ -956,7 +966,7 @@ function applyPreset(type){
   }else{
     pts=builtinPts(type,sx,sy,isLeft);
   }
-  pts=pts.map(pt=>({x:Math.max(.5,Math.min(FW-.5,pt.x)),y:Math.max(.5,Math.min(FH-.5,pt.y))}));
+  pts=pts.map(pt=>({x:Math.max(.5,Math.min(FW-.5,pt.x)),y:Math.max(.5,Math.min(FH-.5,pt.y)),stemEnd:pt.stemEnd||false}));
   if(isOptionRoute){if(!routes[selectedPlayerId])return;routes[selectedPlayerId].optionWaypoints=pts;}
   else{routes[selectedPlayerId]=pts;routes[selectedPlayerId].color=routeColor;routes[selectedPlayerId].optionWaypoints=null;}
   currentBreakAngle=null;unsavedChanges=true;updateDirPad();updateOptionLabel();render();
@@ -1135,13 +1145,13 @@ function renderCPESavedList(){
 ═══════════════════════════════ */
 function serialisePlay(){
   const sr={};
-  for(const pid of Object.keys(routes)){const pts=routes[pid];sr[pid]={color:pts.color||"#111111",waypoints:pts.map(pt=>({x:pt.x,y:pt.y,smooth:pt.smooth||false})),optionWaypoints:(pts.optionWaypoints&&pts.optionWaypoints.length>1)?pts.optionWaypoints.map(pt=>({x:pt.x,y:pt.y})):null};}
+  for(const pid of Object.keys(routes)){const pts=routes[pid];sr[pid]={color:pts.color||"#111111",waypoints:pts.map(pt=>({x:pt.x,y:pt.y,smooth:pt.smooth||false,stemEnd:pt.stemEnd||false})),optionWaypoints:(pts.optionWaypoints&&pts.optionWaypoints.length>1)?pts.optionWaypoints.map(pt=>({x:pt.x,y:pt.y})):null};}
   const sm={};for(const pid of Object.keys(motions))sm[pid]=motions[pid].map(pt=>({x:pt.x,y:pt.y}));
   return{name:document.getElementById("play-name").value.trim()||"Untitled",notes:document.getElementById("play-notes").value.trim(),players:players.map(p=>({...p})),routes:sr,motions:sm,snapReceiverId,thumbnail:canvas.toDataURL("image/png",.6),updatedAt:serverTimestamp()};
 }
 function deserialisePlay(data){
   players=data.players.map(p=>({...p}));routes={};motions={};snapReceiverId=data.snapReceiverId||"QB";
-  if(data.routes){for(const pid of Object.keys(data.routes)){const r=data.routes[pid];if(Array.isArray(r)){routes[pid]=r.map(pt=>({x:pt.x,y:pt.y}));routes[pid].color="#111111";}else{routes[pid]=(r.waypoints||[]).map(pt=>({x:pt.x,y:pt.y,smooth:pt.smooth||false}));routes[pid].color=r.color||"#111111";routes[pid].optionWaypoints=(r.optionWaypoints&&r.optionWaypoints.length>1)?r.optionWaypoints.map(pt=>({x:pt.x,y:pt.y})):null;}}}
+  if(data.routes){for(const pid of Object.keys(data.routes)){const r=data.routes[pid];if(Array.isArray(r)){routes[pid]=r.map(pt=>({x:pt.x,y:pt.y}));routes[pid].color="#111111";}else{routes[pid]=(r.waypoints||[]).map(pt=>({x:pt.x,y:pt.y,smooth:pt.smooth||false,stemEnd:pt.stemEnd||false}));routes[pid].color=r.color||"#111111";routes[pid].optionWaypoints=(r.optionWaypoints&&r.optionWaypoints.length>1)?r.optionWaypoints.map(pt=>({x:pt.x,y:pt.y})):null;}}}
   if(data.motions)for(const pid of Object.keys(data.motions))motions[pid]=data.motions[pid].map(pt=>({x:pt.x,y:pt.y}));
   document.getElementById("play-name").value=data.name||"";document.getElementById("play-notes").value=data.notes||"";
   selectedPlayerId=null;currentBreakAngle=null;unsavedChanges=false;isOptionRoute=false;
